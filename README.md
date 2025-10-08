@@ -2,6 +2,24 @@
 
 **The smart receipt tracker for households**
 
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue)](https://www.typescriptlang.org/)
+[![React Native](https://img.shields.io/badge/React%20Native-0.74-61DAFB)](https://reactnative.dev/)
+[![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-Latest-3ECF8E)](https://supabase.com/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+A modern, secure, household-first grocery budget tracking application with automatic receipt collection, AI-powered categorization, and real-time collaboration.
+
+## 🎯 Key Features
+
+- ✅ **Multi-user households** - Unlimited family members (Premium)
+- 🔐 **OAuth 2.0 security** - Never store your passwords
+- 📱 **Cross-platform** - iOS, Android, and Web
+- 🤖 **AI-powered insights** - Smart categorization and recommendations
+- 🌍 **International** - 10+ countries, multi-language
+- 📊 **Advanced analytics** - Carbon tracking, price trends
+- 💰 **Freemium model** - Free tier + Premium ($4.99/mo)
+
 This repository contains comprehensive competitive research and analysis of grocery budget tracking apps in the Scandinavian market, with detailed implementation plans for building **Receiptor** - a superior product focused on household collaboration and security.
 
 ## 📁 Repository Contents
@@ -396,6 +414,221 @@ Let's do this! 🚀
 
 ---
 
-**Last Updated:** January 2025  
-**Version:** 2.0 (Dual Competitor Analysis)  
-**Status:** Research Complete ✅ → Implementation Planning ✅ → Development Phase (Next)
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+ (use `nvm use` to auto-switch)
+- npm 9+
+- Git
+
+### Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/enoch85/whatebuy.git
+cd whatebuy
+
+# Install dependencies (monorepo)
+npm install
+
+# Build shared package
+cd shared && npm run build
+
+# Start development
+npm run dev
+```
+
+### Project Structure
+
+```
+whatebuy/
+├── .github/              # GitHub Actions, Copilot instructions
+├── docs/                 # Comprehensive documentation
+│   ├── 1_MARKET_ANALYSIS.md
+│   ├── 2_PRODUCT_SPECIFICATION.md
+│   ├── IMPLEMENTATION_PLAN.md
+│   └── TECHNICAL_ARCHITECTURE.md
+├── shared/              # Shared TypeScript types & utilities
+│   ├── src/
+│   │   ├── types/       # Entity definitions, enums
+│   │   ├── validation/  # Zod schemas
+│   │   └── utils/       # Pure functions
+│   └── package.json
+├── mobile/              # React Native app (iOS/Android) [Coming soon]
+├── web/                 # Next.js web app [Coming soon]
+├── supabase/            # Database, migrations, functions [Coming soon]
+└── package.json         # Monorepo root
+```
+
+## 📚 Documentation
+
+- **[Market Analysis](./docs/1_MARKET_ANALYSIS.md)** - Competitive landscape, market opportunity
+- **[Product Specification](./docs/2_PRODUCT_SPECIFICATION.md)** - Features, UX, user personas
+- **[Implementation Plan](./docs/IMPLEMENTATION_PLAN.md)** - Technical roadmap, timeline, budget
+- **[Technical Architecture](./docs/TECHNICAL_ARCHITECTURE.md)** - System design, data flow
+- **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding assistant guidelines
+
+## 🛠 Technology Stack
+
+### Frontend
+- **Mobile:** React Native + TypeScript + Expo
+- **Web:** Next.js 14 (App Router) + Tailwind CSS
+- **State:** Zustand
+- **Data Fetching:** TanStack Query (React Query)
+- **UI:** React Native Paper + Shadcn/ui
+
+### Backend
+- **Database:** Supabase (PostgreSQL)
+- **Auth:** Supabase Auth (Email, Google, Apple)
+- **Realtime:** Supabase Realtime subscriptions
+- **Storage:** Supabase Storage (encrypted)
+- **Functions:** Supabase Edge Functions (Deno)
+
+### Infrastructure
+- **Monorepo:** Turborepo
+- **Testing:** Jest + React Testing Library + Playwright
+- **CI/CD:** GitHub Actions
+- **Linting:** ESLint + Prettier + TypeScript
+- **Deployment:** Vercel (web) + EAS (mobile)
+
+## 📦 Packages
+
+### `@receiptor/shared`
+Core business logic, types, and utilities shared across all platforms.
+
+```typescript
+import { formatCurrency, calculateBudgetProgress } from '@receiptor/shared';
+
+const formatted = formatCurrency(1234.56, 'SEK'); // "1 234,56 kr"
+const progress = calculateBudgetProgress(receipts, 5000);
+```
+
+**Status:** ✅ Complete (v0.1.0)
+- TypeScript types for all entities
+- Zod validation schemas
+- Budget calculation utilities
+- Currency/date formatters
+- 80%+ test coverage
+
+### `mobile` (React Native)
+**Status:** 🚧 Coming in Phase 4
+
+### `web` (Next.js)
+**Status:** 🚧 Coming in Phase 5
+
+### `supabase` (Database)
+**Status:** 🚧 Coming in Phase 2
+
+## 🧪 Testing
+
+```bash
+# Run all tests
+npm test
+
+# Run tests with coverage
+npm test -- --coverage
+
+# Run tests in watch mode
+npm test -- --watch
+
+# Type check
+npm run type-check
+
+# Lint
+npm run lint
+```
+
+## 🎨 Code Quality
+
+This project enforces strict code quality standards:
+
+- ✅ TypeScript strict mode (no `any` types)
+- ✅ ESLint + Prettier (auto-format on commit)
+- ✅ Conventional commits
+- ✅ Pre-commit hooks (Husky + lint-staged)
+- ✅ 80%+ test coverage requirement
+- ✅ Maximum function size: 50 lines
+- ✅ Feature-based architecture
+
+See [.github/copilot-instructions.md](./.github/copilot-instructions.md) for detailed standards.
+
+## 🚦 Development Status
+
+### Phase 1: Foundation ✅ COMPLETE
+- [x] Monorepo setup (Turborepo)
+- [x] TypeScript configuration
+- [x] ESLint + Prettier
+- [x] Shared package with types & utils
+- [x] Unit tests (80%+ coverage)
+- [x] Git hooks
+
+### Phase 2: Database & Backend 🚧 IN PROGRESS
+- [ ] Supabase project setup
+- [ ] Database schema & migrations
+- [ ] Row Level Security policies
+- [ ] Edge Functions
+- [ ] Authentication flows
+
+### Phase 3: Shared Business Logic 📋 PLANNED
+- [ ] Receipt parsing logic
+- [ ] Category classification
+- [ ] Analytics engine
+- [ ] Budget tracking
+
+### Phase 4: Mobile App 📋 PLANNED
+- [ ] React Native setup
+- [ ] Navigation structure
+- [ ] Authentication screens
+- [ ] Core features (receipts, budgets, analytics)
+
+### Phase 5: Web App 📋 PLANNED
+- [ ] Next.js setup
+- [ ] Responsive design
+- [ ] Dashboard
+- [ ] Admin features
+
+### Phase 6: Core Features 📋 PLANNED
+- [ ] Store OAuth integrations
+- [ ] OCR receipt scanning
+- [ ] AI categorization
+- [ ] Premium subscriptions
+
+### Phase 7: Testing & Quality 📋 PLANNED
+- [ ] E2E tests (Playwright/Detox)
+- [ ] Performance testing
+- [ ] Security audit
+- [ ] Accessibility compliance
+
+### Phase 8: CI/CD & Deployment 📋 PLANNED
+- [ ] GitHub Actions pipelines
+- [ ] Automated testing
+- [ ] Deployment workflows
+- [ ] Monitoring & alerts
+
+## 🤝 Contributing
+
+This is currently a private project in active development. Contribution guidelines will be added once we reach beta.
+
+### Commit Message Format
+
+We use [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+feat(receipts): add OCR scanning for manual receipts
+fix(auth): resolve OAuth callback redirect issue
+docs(api): update Supabase schema documentation
+test(budgets): add unit tests for budget calculations
+```
+
+## 📄 License
+
+MIT License - See [LICENSE](./LICENSE) for details
+
+---
+
+**Last Updated:** October 8, 2025  
+**Version:** 0.1.0 (Phase 1 Complete)  
+**Status:** Active Development 🚀
+
+Made with ❤️ by the Receiptor Team
