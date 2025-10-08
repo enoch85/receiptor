@@ -19,6 +19,11 @@ import { CameraView, CameraType, useCameraPermissions } from 'expo-camera';en
  * - Error handling
  */
 
+import { parseVeryfiReceipt, classifyItems } from '@receiptor/shared';
+import type { ParsedReceipt } from '@receiptor/shared';
+import { CameraView, useCameraPermissions } from 'expo-camera';
+import { File } from 'expo-file-system';
+import * as ImagePicker from 'expo-image-picker';
 import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
@@ -29,21 +34,13 @@ import {
   ActivityIndicator,
   TouchableOpacity,
 } from 'react-native';
-import { Text, Button, Card, Chip, IconButton, Divider } from 'react-native-paper';
-import { CameraView, useCameraPermissions } from 'expo-camera';
-import * as ImagePicker from 'expo-image-picker';
-import * as FileSystem from 'expo-file-system';
-import { parseVeryfiReceipt, classifyItems } from '@receiptor/shared';
-import type { ParsedReceipt, CategoryPrediction } from '@receiptor/shared';
+import { Text, Button, Card, Chip, IconButton } from 'react-native-paper';
 
-import { supabase } from '../../services/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { supabase } from '../../services/supabase';
+import { processReceiptWithFallback } from '../../services/veryfi';
 import type { ReceiptsStackScreenProps } from '../../types/navigation';
 import { theme } from '../../utils/theme';
-import {
-  processReceiptWithFallback,
-  type VeryfiResponse,
-} from '../../services/veryfi';
 
 type Props = ReceiptsStackScreenProps<'ReceiptCapture'>;
 
@@ -52,17 +49,18 @@ type CaptureStep = 'camera' | 'processing' | 'preview' | 'saving' | 'success';
 export function ReceiptCaptureScreen({ navigation }: Props) {
   const { user } = useAuth();
   const cameraRef = useRef<CameraView>(null);
-  
+
   // Permissions
   const [cameraPermission, requestCameraPermission] = useCameraPermissions();
-  
+
   // State
   const [step, setStep] = useState<CaptureStep>('camera');
   const [imageUri, setImageUri] = useState<string | null>(null);
   const [parsedReceipt, setParsedReceipt] = useState<ParsedReceipt | null>(null);
-  const [categorizedItems, setCategorizedItems] = useState<Array<ParsedReceipt['items'][0] & { category?: string }>>([]);
+  const [categorizedItems, setCategorizedItems] = useState<
+    Array<ParsedReceipt['items'][0] & { category?: string }>
+  >([]);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   /**
    * Request camera permissions on mount
@@ -71,6 +69,7 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
     if (!cameraPermission?.granted) {
       requestCameraPermission();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
@@ -83,7 +82,6 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
     }
 
     try {
-      setError(null);
       const photo = await cameraRef.current.takePictureAsync({
         quality: 0.8,
         base64: false,
@@ -93,7 +91,7 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
         setImageUri(photo.uri);
         await processImage(photo.uri);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Camera error:', err);
       Alert.alert('Error', 'Failed to capture photo');
     }
@@ -104,7 +102,6 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
    */
   const handlePickImage = async () => {
     try {
-      setError(null);
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: 'images',
         allowsEditing: false,
@@ -116,7 +113,7 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
         setImageUri(uri);
         await processImage(uri);
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error('Image picker error:', err);
       Alert.alert('Error', 'Failed to pick image');
     }
@@ -130,10 +127,10 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
     setIsProcessing(true);
 
     try {
-      // Read image as base64
-      const base64 = await FileSystem.readAsStringAsync(uri, {
-        encoding: 'base64',
-      });
+      // Read image as base64 using modern File API
+      const file = new File(uri);
+      const base64String = await file.base64();
+      const base64 = base64String || '';
 
       // Call Veryfi API
       const veryfiConfig = {
@@ -164,21 +161,22 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
 
       // Categorize items automatically
       const categorized = classifyItems(parsed.items);
-      
+
       // Merge categorization results with items
       const itemsWithCategories = parsed.items.map((item, index) => ({
         ...item,
         category: categorized[index]?.category || 'other',
       }));
-      
+
       setCategorizedItems(itemsWithCategories);
 
       setStep('preview');
-    } catch (err: any) {
+    } catch (err) {
       console.error('OCR processing error:', err);
-      setError(err.message || 'Failed to process receipt');
       setStep('camera');
-      Alert.alert('OCR Error', err.message || 'Failed to process receipt. Please try again.');
+      const errorMessage =
+        err instanceof Error ? err.message : 'Failed to process receipt. Please try again.';
+      Alert.alert('OCR Error', errorMessage);
     } finally {
       setIsProcessing(false);
     }
@@ -221,12 +219,10 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
             uri: imageUri,
             type: 'image/jpeg',
             name: fileName,
-          } as any);
+          } as unknown as File);
 
         if (!uploadError && uploadData) {
-          const { data: urlData } = supabase.storage
-            .from('receipts')
-            .getPublicUrl(uploadData.path);
+          const { data: urlData } = supabase.storage.from('receipts').getPublicUrl(uploadData.path);
           imageUrl = urlData.publicUrl;
         }
       }
@@ -262,9 +258,7 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
         is_organic: false, // Default value, can be enhanced later
       }));
 
-      const { error: itemsError } = await supabase
-        .from('receipt_items')
-        .insert(itemsToInsert);
+      const { error: itemsError } = await supabase.from('receipt_items').insert(itemsToInsert);
 
       if (itemsError) {
         throw itemsError;
@@ -274,10 +268,10 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
       setTimeout(() => {
         navigation.navigate('ReceiptList');
       }, 2000);
-    } catch (err: any) {
+    } catch (err) {
       console.error('Save error:', err);
-      setError(err.message || 'Failed to save receipt');
-      Alert.alert('Save Error', err.message || 'Failed to save receipt');
+      const errorMessage = err instanceof Error ? err.message : 'Failed to save receipt';
+      Alert.alert('Save Error', errorMessage);
       setStep('preview');
     }
   };
@@ -289,7 +283,6 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
     setImageUri(null);
     setParsedReceipt(null);
     setCategorizedItems([]);
-    setError(null);
     setStep('camera');
   };
 
@@ -298,9 +291,7 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
     return (
       <View style={styles.container}>
         <View style={styles.permissionContainer}>
-          <Text style={styles.permissionText}>
-            Camera permission is required to scan receipts
-          </Text>
+          <Text style={styles.permissionText}>Camera permission is required to scan receipts</Text>
           <Button mode="contained" onPress={requestCameraPermission} style={styles.button}>
             Grant Permission
           </Button>
@@ -328,17 +319,12 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
               iconColor="#fff"
               onPress={() => navigation.goBack()}
             />
-            
+
             <TouchableOpacity style={styles.captureButton} onPress={handleTakePhoto}>
               <View style={styles.captureButtonInner} />
             </TouchableOpacity>
 
-            <IconButton
-              icon="image"
-              size={32}
-              iconColor="#fff"
-              onPress={handlePickImage}
-            />
+            <IconButton icon="image" size={32} iconColor="#fff" onPress={handlePickImage} />
           </View>
         </CameraView>
 
@@ -378,16 +364,16 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
         <Card style={styles.card}>
           <Card.Content>
             <Text style={styles.cardTitle}>{parsedReceipt.store_name}</Text>
-            <Text style={styles.cardSubtitle}>{parsedReceipt.purchase_date.toLocaleDateString()}</Text>
+            <Text style={styles.cardSubtitle}>
+              {parsedReceipt.purchase_date.toLocaleDateString()}
+            </Text>
             <Text style={styles.totalAmount}>
               {parsedReceipt.total_amount.toFixed(2)} {parsedReceipt.currency}
             </Text>
           </Card.Content>
         </Card>
 
-        <Text style={styles.sectionTitle}>
-          Items ({categorizedItems.length})
-        </Text>
+        <Text style={styles.sectionTitle}>Items ({categorizedItems.length})</Text>
 
         {categorizedItems.map((item, index) => (
           <Card key={index} style={styles.itemCard}>
@@ -396,11 +382,7 @@ export function ReceiptCaptureScreen({ navigation }: Props) {
                 <View style={styles.itemInfo}>
                   <Text style={styles.itemName}>{item.name}</Text>
                   <View style={styles.itemMeta}>
-                    {item.quantity > 0 && (
-                      <Text style={styles.itemQuantity}>
-                        {item.quantity}x
-                      </Text>
-                    )}
+                    {item.quantity > 0 && <Text style={styles.itemQuantity}>{item.quantity}x</Text>}
                     <Chip mode="outlined" compact>
                       {item.category?.replace('_', ' ')}
                     </Chip>

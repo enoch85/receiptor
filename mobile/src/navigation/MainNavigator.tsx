@@ -5,12 +5,16 @@
  * Provides access to Dashboard, Receipts, Budgets, Household, and Settings.
  */
 
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import React from 'react';
 
 import { DashboardScreen } from '../screens/DashboardScreen';
+import { SettingsScreen } from '../screens/SettingsScreen';
 import type { MainTabParamList } from '../types/navigation';
 import { theme } from '../utils/theme';
+
+import { ReceiptsNavigator } from './ReceiptsNavigator';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -20,13 +24,7 @@ export function MainNavigator() {
       screenOptions={{
         tabBarActiveTintColor: theme.colors.primary,
         tabBarInactiveTintColor: theme.colors.textSecondary,
-        headerStyle: {
-          backgroundColor: theme.colors.primary,
-        },
-        headerTintColor: '#fff',
-        headerTitleStyle: {
-          fontWeight: 'bold',
-        },
+        headerShown: false,
       }}
     >
       <Tab.Screen
@@ -35,10 +33,33 @@ export function MainNavigator() {
         options={{
           tabBarLabel: 'Dashboard',
           title: 'Dashboard',
-          // tabBarIcon: ({ color, size }) => <Icon name="home" size={size} color={color} />,
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="view-dashboard" size={size} color={color} />
+          ),
         }}
       />
-      {/* TODO: Add other tabs (Receipts, Budgets, Household, Settings) */}
+      <Tab.Screen
+        name="ReceiptsTab"
+        component={ReceiptsNavigator}
+        options={{
+          tabBarLabel: 'Receipts',
+          title: 'Receipts',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="receipt" size={size} color={color} />
+          ),
+        }}
+      />
+      <Tab.Screen
+        name="SettingsTab"
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: 'Settings',
+          title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="cog" size={size} color={color} />
+          ),
+        }}
+      />
     </Tab.Navigator>
   );
 }

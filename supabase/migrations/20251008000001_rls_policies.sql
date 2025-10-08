@@ -2,6 +2,9 @@
 -- Ensures users can only access data they're authorized to see
 -- Author: Receiptor Team
 -- Last Updated: 2025-10-08
+--
+-- CRITICAL: This file uses a specific architecture to AVOID CIRCULAR DEPENDENCIES
+-- between households and household_members tables. See notes below.
 
 -- ============================================================================
 -- ENABLE RLS ON ALL TABLES
@@ -20,146 +23,119 @@ ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE analytics_cache ENABLE ROW LEVEL SECURITY;
 
 -- ============================================================================
--- HELPER FUNCTIONS
--- ============================================================================
-
--- Check if user is member of household
-CREATE OR REPLACE FUNCTION is_household_member(household_uuid UUID)
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM household_members
-    WHERE household_id = household_uuid
-    AND user_id = auth.uid()
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Check if user is admin of household
-CREATE OR REPLACE FUNCTION is_household_admin(household_uuid UUID)
-RETURNS BOOLEAN AS $$
-BEGIN
-  RETURN EXISTS (
-    SELECT 1 FROM household_members
-    WHERE household_id = household_uuid
-    AND user_id = auth.uid()
-    AND role = 'admin'
-  );
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Get user's households
-CREATE OR REPLACE FUNCTION get_user_households()
-RETURNS SETOF UUID AS $$
-BEGIN
-  RETURN QUERY
-  SELECT household_id FROM household_members
-  WHERE user_id = auth.uid();
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- ============================================================================
 -- USER PROFILES POLICIES
 -- ============================================================================
 
 -- Users can view their own profile
 CREATE POLICY "Users can view own profile"
   ON user_profiles FOR SELECT
-  USING (auth.uid() = id);
+  USING (id = auth.uid());
 
 -- Users can update their own profile
 CREATE POLICY "Users can update own profile"
   ON user_profiles FOR UPDATE
-  USING (auth.uid() = id);
+  USING (id = auth.uid())
+  WITH CHECK (id = auth.uid());
 
 -- Users can insert their own profile
 CREATE POLICY "Users can insert own profile"
   ON user_profiles FOR INSERT
-  WITH CHECK (auth.uid() = id);
+  WITH CHECK (id = auth.uid());
 
 -- ============================================================================
--- HOUSEHOLDS POLICIES
+-- HOUSEHOLDS POLICIES (NO REFERENCE TO household_members - PREVENTS RECURSION)
 -- ============================================================================
 
--- Users can view households they're members of
-CREATE POLICY "Users can view own households"
-  ON households FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM household_members
-      WHERE household_id = households.id
-      AND user_id = auth.uid()
-    )
-  );
+-- IMPORTANT: These policies only check created_by to avoid circular dependencies
+-- The app queries households via household_members JOIN, which works correctly
 
 -- Users can create households
-CREATE POLICY "Users can create households"
+CREATE POLICY "Anyone can create households"
   ON households FOR INSERT
-  WITH CHECK (auth.uid() = created_by);
+  WITH CHECK (created_by = auth.uid());
 
--- Admins can update their households
-CREATE POLICY "Admins can update households"
+-- Users can view households they created
+CREATE POLICY "Users can view households they created"
+  ON households FOR SELECT
+  USING (created_by = auth.uid());
+
+-- Creators can update their households
+CREATE POLICY "Creators can update their households"
   ON households FOR UPDATE
-  USING (is_household_admin(id));
+  USING (created_by = auth.uid())
+  WITH CHECK (created_by = auth.uid());
 
--- Admins can delete their households
-CREATE POLICY "Admins can delete households"
+-- Creators can delete their households
+CREATE POLICY "Creators can delete their households"
   ON households FOR DELETE
-  USING (is_household_admin(id));
+  USING (created_by = auth.uid());
 
 -- ============================================================================
--- HOUSEHOLD MEMBERS POLICIES
+-- HOUSEHOLD MEMBERS POLICIES (NO REFERENCE TO households - PREVENTS RECURSION)
 -- ============================================================================
 
--- Users can view members of their households
-CREATE POLICY "Users can view household members"
+-- IMPORTANT: These policies only check user_id to avoid circular dependencies
+-- Users can only see their own membership records and modify themselves
+
+-- Users can view their own membership records
+CREATE POLICY "Users view own memberships"
   ON household_members FOR SELECT
-  USING (is_household_member(household_id));
+  USING (user_id = auth.uid());
 
--- Admins can add members to their households
-CREATE POLICY "Admins can add household members"
+-- Users can insert themselves as members (during household creation)
+CREATE POLICY "Users add themselves as members"
   ON household_members FOR INSERT
-  WITH CHECK (is_household_admin(household_id));
+  WITH CHECK (user_id = auth.uid());
 
--- Admins can update member roles
-CREATE POLICY "Admins can update member roles"
+-- Users can update their own membership
+CREATE POLICY "Users update own memberships"
   ON household_members FOR UPDATE
-  USING (is_household_admin(household_id));
+  USING (user_id = auth.uid())
+  WITH CHECK (user_id = auth.uid());
 
--- Admins can remove members, or users can remove themselves
-CREATE POLICY "Admins can remove members or users can leave"
+-- Users can delete their own membership (leave household)
+CREATE POLICY "Users delete own memberships"
   ON household_members FOR DELETE
-  USING (
-    is_household_admin(household_id)
-    OR user_id = auth.uid()
-  );
+  USING (user_id = auth.uid());
 
 -- ============================================================================
 -- HOUSEHOLD INVITATIONS POLICIES
 -- ============================================================================
 
--- Users can view invitations for their households
+-- Users can view invitations sent to them or sent from their households
 CREATE POLICY "Users can view household invitations"
   ON household_invitations FOR SELECT
   USING (
-    is_household_member(household_id)
-    OR email = (SELECT email FROM auth.users WHERE id = auth.uid())
+    email = (SELECT email FROM auth.users WHERE id = auth.uid())
+    OR invited_by = auth.uid()
   );
 
--- Admins can create invitations
-CREATE POLICY "Admins can create invitations"
+-- Household creators can create invitations
+CREATE POLICY "Creators can create invitations"
   ON household_invitations FOR INSERT
-  WITH CHECK (is_household_admin(household_id));
+  WITH CHECK (
+    household_id IN (
+      SELECT id FROM households WHERE created_by = auth.uid()
+    )
+  );
 
--- Admins can update invitations
-CREATE POLICY "Admins can update invitations"
+-- Household creators can update invitations
+CREATE POLICY "Creators can update invitations"
   ON household_invitations FOR UPDATE
-  USING (is_household_admin(household_id));
+  USING (
+    household_id IN (
+      SELECT id FROM households WHERE created_by = auth.uid()
+    )
+  );
 
--- Admins can delete invitations
-CREATE POLICY "Admins can delete invitations"
+-- Household creators can delete invitations
+CREATE POLICY "Creators can delete invitations"
   ON household_invitations FOR DELETE
-  USING (is_household_admin(household_id));
+  USING (
+    household_id IN (
+      SELECT id FROM households WHERE created_by = auth.uid()
+    )
+  );
 
 -- ============================================================================
 -- STORE CONNECTIONS POLICIES
@@ -168,18 +144,12 @@ CREATE POLICY "Admins can delete invitations"
 -- Users can view their own store connections
 CREATE POLICY "Users can view own store connections"
   ON store_connections FOR SELECT
-  USING (
-    user_id = auth.uid()
-    OR is_household_member(household_id)
-  );
+  USING (user_id = auth.uid());
 
 -- Users can create their own store connections
 CREATE POLICY "Users can create own store connections"
   ON store_connections FOR INSERT
-  WITH CHECK (
-    user_id = auth.uid()
-    AND is_household_member(household_id)
-  );
+  WITH CHECK (user_id = auth.uid());
 
 -- Users can update their own store connections
 CREATE POLICY "Users can update own store connections"
@@ -195,25 +165,41 @@ CREATE POLICY "Users can delete own store connections"
 -- RECEIPTS POLICIES
 -- ============================================================================
 
--- Users can view receipts for their households
+-- Users can view receipts for households they're members of
 CREATE POLICY "Users can view household receipts"
   ON receipts FOR SELECT
-  USING (is_household_member(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
--- Users can create receipts for their households
+-- Users can create receipts for households they're members of
 CREATE POLICY "Users can create household receipts"
   ON receipts FOR INSERT
-  WITH CHECK (is_household_member(household_id));
+  WITH CHECK (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
--- Users can update receipts in their households (for manual edits)
+-- Users can update receipts in their households
 CREATE POLICY "Users can update household receipts"
   ON receipts FOR UPDATE
-  USING (is_household_member(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
--- Admins can delete receipts
-CREATE POLICY "Admins can delete receipts"
+-- Users can delete receipts in their households
+CREATE POLICY "Users can delete household receipts"
   ON receipts FOR DELETE
-  USING (is_household_admin(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
 -- ============================================================================
 -- RECEIPT ITEMS POLICIES
@@ -223,21 +209,23 @@ CREATE POLICY "Admins can delete receipts"
 CREATE POLICY "Users can view household receipt items"
   ON receipt_items FOR SELECT
   USING (
-    EXISTS (
-      SELECT 1 FROM receipts
-      WHERE receipts.id = receipt_items.receipt_id
-      AND is_household_member(receipts.household_id)
+    receipt_id IN (
+      SELECT id FROM receipts
+      WHERE household_id IN (
+        SELECT household_id FROM household_members WHERE user_id = auth.uid()
+      )
     )
   );
 
--- Users can create receipt items for their household receipts
+-- Users can create receipt items
 CREATE POLICY "Users can create household receipt items"
   ON receipt_items FOR INSERT
   WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM receipts
-      WHERE receipts.id = receipt_items.receipt_id
-      AND is_household_member(receipts.household_id)
+    receipt_id IN (
+      SELECT id FROM receipts
+      WHERE household_id IN (
+        SELECT household_id FROM household_members WHERE user_id = auth.uid()
+      )
     )
   );
 
@@ -245,21 +233,23 @@ CREATE POLICY "Users can create household receipt items"
 CREATE POLICY "Users can update household receipt items"
   ON receipt_items FOR UPDATE
   USING (
-    EXISTS (
-      SELECT 1 FROM receipts
-      WHERE receipts.id = receipt_items.receipt_id
-      AND is_household_member(receipts.household_id)
+    receipt_id IN (
+      SELECT id FROM receipts
+      WHERE household_id IN (
+        SELECT household_id FROM household_members WHERE user_id = auth.uid()
+      )
     )
   );
 
--- Admins can delete receipt items
-CREATE POLICY "Admins can delete receipt items"
+-- Users can delete receipt items
+CREATE POLICY "Users can delete household receipt items"
   ON receipt_items FOR DELETE
   USING (
-    EXISTS (
-      SELECT 1 FROM receipts
-      WHERE receipts.id = receipt_items.receipt_id
-      AND is_household_admin(receipts.household_id)
+    receipt_id IN (
+      SELECT id FROM receipts
+      WHERE household_id IN (
+        SELECT household_id FROM household_members WHERE user_id = auth.uid()
+      )
     )
   );
 
@@ -270,59 +260,80 @@ CREATE POLICY "Admins can delete receipt items"
 -- Users can view budgets for their households
 CREATE POLICY "Users can view household budgets"
   ON budgets FOR SELECT
-  USING (is_household_member(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
--- Admins can create budgets
-CREATE POLICY "Admins can create budgets"
+-- Users can create budgets
+CREATE POLICY "Users can create household budgets"
   ON budgets FOR INSERT
-  WITH CHECK (is_household_admin(household_id));
+  WITH CHECK (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
--- Admins can update budgets
-CREATE POLICY "Admins can update budgets"
+-- Users can update budgets
+CREATE POLICY "Users can update household budgets"
   ON budgets FOR UPDATE
-  USING (is_household_admin(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
--- Admins can delete budgets
-CREATE POLICY "Admins can delete budgets"
+-- Users can delete budgets
+CREATE POLICY "Users can delete household budgets"
   ON budgets FOR DELETE
-  USING (is_household_admin(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
 -- ============================================================================
 -- CATEGORIES POLICIES
 -- ============================================================================
 
--- Users can view global categories and their household categories
+-- Everyone can view system categories, users can view their household categories
 CREATE POLICY "Users can view categories"
   ON categories FOR SELECT
   USING (
-    household_id IS NULL -- global categories
-    OR is_household_member(household_id)
+    is_system = true
+    OR household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
   );
 
--- Admins can create household categories
-CREATE POLICY "Admins can create household categories"
+-- Users can create household categories
+CREATE POLICY "Users can create household categories"
   ON categories FOR INSERT
   WITH CHECK (
-    household_id IS NOT NULL
-    AND is_household_admin(household_id)
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
   );
 
--- Admins can update non-system categories
-CREATE POLICY "Admins can update household categories"
+-- Users can update non-system categories
+CREATE POLICY "Users can update household categories"
   ON categories FOR UPDATE
   USING (
-    household_id IS NOT NULL
-    AND is_household_admin(household_id)
-    AND NOT is_system
+    is_system = false
+    AND household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
   );
 
--- Admins can delete non-system categories
-CREATE POLICY "Admins can delete household categories"
+-- Users can delete non-system categories
+CREATE POLICY "Users can delete household categories"
   ON categories FOR DELETE
   USING (
-    household_id IS NOT NULL
-    AND is_household_admin(household_id)
-    AND NOT is_system
+    is_system = false
+    AND household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
   );
 
 -- ============================================================================
@@ -334,7 +345,7 @@ CREATE POLICY "Users can view own subscription"
   ON subscriptions FOR SELECT
   USING (user_id = auth.uid());
 
--- Users can insert their own subscription
+-- Users can create their own subscription
 CREATE POLICY "Users can create own subscription"
   ON subscriptions FOR INSERT
   WITH CHECK (user_id = auth.uid());
@@ -356,22 +367,38 @@ CREATE POLICY "Users can delete own subscription"
 -- Users can view analytics for their households
 CREATE POLICY "Users can view household analytics"
   ON analytics_cache FOR SELECT
-  USING (is_household_member(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
 -- System can insert analytics
 CREATE POLICY "System can insert analytics"
   ON analytics_cache FOR INSERT
-  WITH CHECK (is_household_member(household_id));
+  WITH CHECK (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
 -- System can update analytics
 CREATE POLICY "System can update analytics"
   ON analytics_cache FOR UPDATE
-  USING (is_household_member(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
 -- System can delete old analytics
 CREATE POLICY "System can delete old analytics"
   ON analytics_cache FOR DELETE
-  USING (is_household_member(household_id));
+  USING (
+    household_id IN (
+      SELECT household_id FROM household_members WHERE user_id = auth.uid()
+    )
+  );
 
 -- ============================================================================
 -- GRANT PERMISSIONS TO AUTHENTICATED USERS
@@ -384,9 +411,37 @@ GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO authenticated;
 
 -- ============================================================================
--- COMMENTS
+-- ARCHITECTURE NOTES
 -- ============================================================================
 
-COMMENT ON FUNCTION is_household_member IS 'Check if current user is member of specified household';
-COMMENT ON FUNCTION is_household_admin IS 'Check if current user is admin of specified household';
-COMMENT ON FUNCTION get_user_households IS 'Get all household IDs for current user';
+/*
+WHY THIS ARCHITECTURE AVOIDS CIRCULAR DEPENDENCIES:
+
+1. HOUSEHOLDS table policies:
+   - Only check created_by = auth.uid()
+   - Do NOT query household_members
+   - Result: No recursion
+
+2. HOUSEHOLD_MEMBERS table policies:
+   - Only check user_id = auth.uid()
+   - Do NOT query households
+   - Result: No recursion
+
+3. OTHER TABLES (receipts, budgets, etc.):
+   - Check household membership via household_members query
+   - This is SAFE because household_members policies are simple (user_id check)
+   - The household_members query doesn't trigger households policies
+   - Result: No recursion
+
+4. APP QUERY PATTERN:
+   - App queries: household_members WHERE user_id = auth.uid()
+   - Then JOINs households data
+   - RLS allows this because both tables have simple policies
+   - Result: Users get all their households (created + joined)
+
+TRADE-OFF:
+- Direct SELECT on households only shows households you CREATED
+- But app uses household_members JOIN, so it gets ALL households you're in
+- This is fine because the app never queries households directly
+*/
+

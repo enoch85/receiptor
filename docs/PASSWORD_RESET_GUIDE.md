@@ -81,7 +81,7 @@ After successful password reset:
 # 1. Go to forgot password page
 http://localhost:3000/auth/forgot-password
 
-# 2. Enter email: mailto@danielhansson.nu
+# 2. Enter email: test@example.com
 
 # 3. Open MailHog
 http://localhost:8025

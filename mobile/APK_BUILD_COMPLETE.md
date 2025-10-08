@@ -172,10 +172,10 @@ Credentials are configured in `eas.json`:
   "build": {
     "preview": {
       "env": {
-        "VERYFI_CLIENT_ID": "vrfpjje1hVFEyZnTE4TZxwt3dn9ckW2duJdbCp0",
-        "VERYFI_CLIENT_SECRET": "aZp3A5N5UYxkwrxGRFCSF08gZjlYGU36saH4K0Sb1fE1EfLoAlRtZjL0IynAbRGY7AWnkB9ghhiMeU3f6ieu3f9Ljf6Zx0GvY4VvGKr4bJ7kOhOFInhow1iuC6Lalieg",
-        "VERYFI_API_KEY": "e570475ef0a4930a6cbb253090e67cfa",
-        "VERYFI_USERNAME": "mailto"
+        "VERYFI_CLIENT_ID": "your-veryfi-client-id",
+        "VERYFI_CLIENT_SECRET": "your-veryfi-client-secret",
+        "VERYFI_API_KEY": "your-veryfi-api-key",
+        "VERYFI_USERNAME": "your-veryfi-username"
       }
     }
   }

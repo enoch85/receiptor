@@ -5,36 +5,30 @@
  * Features pagination, filtering, and search.
  */
 
+import type { Receipt } from '@receiptor/shared';
 import React, { useState } from 'react';
 import { View, StyleSheet, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 import { Text, FAB, Searchbar, Chip } from 'react-native-paper';
 
-import type { ReceiptsStackScreenProps } from '../../types/navigation';
-import type { Receipt } from '@receiptor/shared';
-import { theme } from '../../utils/theme';
-import { useReceipts } from '../../hooks/useReceipts';
 import { ReceiptCard } from '../../components/common/ReceiptCard';
+import { useHousehold } from '../../hooks/useHousehold';
+import { useReceipts } from '../../hooks/useReceipts';
+import type { ReceiptsStackScreenProps } from '../../types/navigation';
+import { theme } from '../../utils/theme';
 
 type Props = ReceiptsStackScreenProps<'ReceiptList'>;
 
 export function ReceiptListScreen({ navigation }: Props) {
-  // TODO: Get actual household ID from auth context
-  const householdId = 'placeholder-household-id';
+  // Get user's household
+  const { householdId, isLoading: householdLoading } = useHousehold();
 
   const [page, setPage] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
   const [storeFilter, setStoreFilter] = useState<string | undefined>();
 
   // Fetch receipts
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    isRefetching,
-  } = useReceipts({
-    householdId,
+  const { data, isLoading, isError, error, refetch, isRefetching } = useReceipts({
+    householdId: householdId || '', // Only fetch if we have a household ID
     page,
     limit: 20,
     searchQuery: searchQuery || undefined,
@@ -43,6 +37,30 @@ export function ReceiptListScreen({ navigation }: Props) {
 
   const receipts = data?.receipts ?? [];
   const hasMore = data?.hasMore ?? false;
+
+  // Show loading if household is loading
+  if (householdLoading) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.emptyState}>
+          <ActivityIndicator size="large" color={theme.colors.primary} />
+          <Text style={styles.loadingText}>Setting up your household...</Text>
+        </View>
+      </View>
+    );
+  }
+
+  // Show error if no household
+  if (!householdId) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.emptyState}>
+          <Text style={styles.errorText}>No household found</Text>
+          <Text style={styles.errorSubtext}>Please contact support</Text>
+        </View>
+      </View>
+    );
+  }
 
   const handleAddReceipt = () => {
     navigation.navigate('ReceiptCapture');
@@ -64,7 +82,7 @@ export function ReceiptListScreen({ navigation }: Props) {
 
   const handleLoadMore = () => {
     if (hasMore && !isLoading && !isRefetching) {
-      setPage(prev => prev + 1);
+      setPage((prev) => prev + 1);
     }
   };
 
@@ -79,7 +97,7 @@ export function ReceiptListScreen({ navigation }: Props) {
 
   const renderFooter = () => {
     if (!hasMore) return null;
-    
+
     return (
       <View style={styles.footer}>
         <ActivityIndicator size="small" color={theme.colors.primary} />
@@ -101,9 +119,7 @@ export function ReceiptListScreen({ navigation }: Props) {
       return (
         <View style={styles.emptyState}>
           <Text style={styles.errorText}>Failed to load receipts</Text>
-          <Text style={styles.errorSubtext}>
-            {error?.message ?? 'Unknown error'}
-          </Text>
+          <Text style={styles.errorSubtext}>{error?.message ?? 'Unknown error'}</Text>
         </View>
       );
     }
@@ -112,9 +128,7 @@ export function ReceiptListScreen({ navigation }: Props) {
       return (
         <View style={styles.emptyState}>
           <Text style={styles.emptyText}>No receipts found</Text>
-          <Text style={styles.emptySubtext}>
-            Try adjusting your search or filters
-          </Text>
+          <Text style={styles.emptySubtext}>Try adjusting your search or filters</Text>
         </View>
       );
     }
@@ -122,9 +136,7 @@ export function ReceiptListScreen({ navigation }: Props) {
     return (
       <View style={styles.emptyState}>
         <Text style={styles.emptyText}>No receipts yet</Text>
-        <Text style={styles.emptySubtext}>
-          Tap the + button to add your first receipt
-        </Text>
+        <Text style={styles.emptySubtext}>Tap the + button to add your first receipt</Text>
       </View>
     );
   };
@@ -144,11 +156,7 @@ export function ReceiptListScreen({ navigation }: Props) {
       {/* Active Filters */}
       {storeFilter && (
         <View style={styles.filtersContainer}>
-          <Chip
-            mode="outlined"
-            onClose={handleClearFilter}
-            style={styles.filterChip}
-          >
+          <Chip mode="outlined" onClose={handleClearFilter} style={styles.filterChip}>
             Store: {storeFilter}
           </Chip>
         </View>
@@ -159,9 +167,7 @@ export function ReceiptListScreen({ navigation }: Props) {
         data={receipts}
         renderItem={renderReceipt}
         keyExtractor={(item) => item.id}
-        contentContainerStyle={
-          receipts.length === 0 ? styles.emptyContainer : styles.listContent
-        }
+        contentContainerStyle={receipts.length === 0 ? styles.emptyContainer : styles.listContent}
         ListEmptyComponent={renderEmptyState}
         ListFooterComponent={renderFooter}
         onEndReached={handleLoadMore}
@@ -176,11 +182,7 @@ export function ReceiptListScreen({ navigation }: Props) {
       />
 
       {/* Add Receipt FAB */}
-      <FAB
-        icon="plus"
-        style={styles.fab}
-        onPress={handleAddReceipt}
-      />
+      <FAB icon="plus" style={styles.fab} onPress={handleAddReceipt} />
     </View>
   );
 }

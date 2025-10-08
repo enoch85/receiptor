@@ -1,0 +1,297 @@
+name: Test Suite
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: npm run lint
+
+  test-shared:
+    name: Test Shared Package
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd shared && npm ci
+
+      - name: Run tests
+        run: cd shared && npm test -- --coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./shared/coverage/coverage-final.json
+          flags: shared
+
+  test-mobile:
+    name: Test Mobile App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd mobile && npm ci
+
+      - name: Run tests
+        run: cd mobile && npm test -- --coverage
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./mobile/coverage/coverage-final.json
+          flags: mobile
+
+  test-rls-policies:
+    name: Test RLS Policies
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: supabase/postgres:15.1.0.117
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: supabase start
+
+      - name: Run migrations
+        run: |
+          supabase db reset --db-url postgresql://postgres:postgres@localhost:5432/postgres
+
+      - name: Test RLS policies
+        run: |
+          psql postgresql://postgres:postgres@localhost:5432/postgres \
+            -f supabase/__tests__/rls-policies.test.sql
+
+      - name: Stop Supabase
+        run: supabase stop
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: supabase/postgres:15.1.0.117
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start Supabase
+        run: supabase start
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd mobile && npm ci
+
+      - name: Run integration tests
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: http://localhost:8000
+          EXPO_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+        run: cd mobile && npm test -- --testPathPattern=integration
+
+      - name: Stop Supabase
+        run: supabase stop
+
+  type-check:
+    name: TypeScript Type Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check shared
+        run: cd shared && npx tsc --noEmit
+
+      - name: Type check mobile
+        run: cd mobile && npx tsc --noEmit
+
+  security-check:
+    name: Security Audit
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Run npm audit
+        run: npm audit --audit-level=high
+
+      - name: Check for sensitive data
+        run: |
+          # Check for accidentally committed secrets
+          if grep -r "vypudeywswtfuxwhhvpu" . --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "ERROR: Found production project ID in code!"
+            exit 1
+          fi
+
+          if grep -r "vrfpjje1hVFEyZnTE4TZxwt3dn9ckW2duJdbCp0" . --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "ERROR: Found Veryfi API keys in code!"
+            exit 1
+          fi
+
+          if grep -r "mailto@danielhansson.nu" . --exclude-dir=node_modules --exclude-dir=.git; then
+            echo "ERROR: Found personal email in code!"
+            exit 1
+          fi
+
+          echo "✅ No sensitive data found"
+
+  build-mobile:
+    name: Build Mobile App
+    runs-on: ubuntu-latest
+    needs: [lint, test-shared, test-mobile, type-check]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v8
+        with:
+          expo-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd mobile && npm ci
+
+      - name: Build for preview
+        run: cd mobile && npx expo export --platform android
+
+  all-tests-passed:
+    name: All Tests Passed
+    runs-on: ubuntu-latest
+    needs:
+      [
+        lint,
+        test-shared,
+        test-mobile,
+        test-rls-policies,
+        integration-tests,
+        type-check,
+        security-check,
+      ]
+
+    steps:
+      - name: Success
+        run: |
+          echo "================================================"
+          echo "✅ All tests passed successfully!"
+          echo "================================================"
+          echo ""
+          echo "Test Results:"
+          echo "  ✅ Linting passed"
+          echo "  ✅ Shared package tests passed"
+          echo "  ✅ Mobile app tests passed"
+          echo "  ✅ RLS policy tests passed"
+          echo "  ✅ Integration tests passed"
+          echo "  ✅ TypeScript type check passed"
+          echo "  ✅ Security audit passed"
+          echo ""
+          echo "Ready for deployment! 🚀"
