@@ -18,7 +18,7 @@ INSERT INTO auth.users (
   created_at,
   updated_at
 ) VALUES (
-  'test-user-1-uuid-0000-000000000001',
+  '00000000-0000-0000-0000-000000000001'::uuid,
   'test1@receiptor.test',
   crypt('testpassword123', gen_salt('bf')),
   NOW(),
@@ -35,7 +35,7 @@ INSERT INTO auth.users (
   created_at,
   updated_at
 ) VALUES (
-  'test-user-2-uuid-0000-000000000002',
+  '00000000-0000-0000-0000-000000000002'::uuid,
   'test2@receiptor.test',
   crypt('testpassword123', gen_salt('bf')),
   NOW(),
@@ -46,8 +46,8 @@ INSERT INTO auth.users (
 -- Create user profiles (should be auto-created by trigger, but ensure they exist)
 INSERT INTO user_profiles (id, display_name, language, currency, created_at, updated_at)
 VALUES 
-  ('test-user-1-uuid-0000-000000000001', 'Test User 1', 'en', 'SEK', NOW(), NOW()),
-  ('test-user-2-uuid-0000-000000000002', 'Test User 2', 'en', 'SEK', NOW(), NOW())
+  ('00000000-0000-0000-0000-000000000001'::uuid, 'Test User 1', 'en', 'SEK', NOW(), NOW()),
+  ('00000000-0000-0000-0000-000000000002'::uuid, 'Test User 2', 'en', 'SEK', NOW(), NOW())
 ON CONFLICT (id) DO UPDATE SET
   display_name = EXCLUDED.display_name;
 
@@ -130,11 +130,11 @@ DECLARE
   test_household_id UUID;
 BEGIN
   -- Set session to test user 1
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', 'test-user-1-uuid-0000-000000000001')::text, true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001')::text, true);
   
   -- Try to create household
   INSERT INTO households (name, created_by)
-  VALUES ('Test Household 1', 'test-user-1-uuid-0000-000000000001')
+  VALUES ('Test Household 1', '00000000-0000-0000-0000-000000000001'::uuid)
   RETURNING id INTO test_household_id;
   
   IF test_household_id IS NULL THEN
@@ -154,18 +154,18 @@ DECLARE
   test_member_id UUID;
 BEGIN
   -- Set session to test user 1
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', 'test-user-1-uuid-0000-000000000001')::text, true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001')::text, true);
   
   -- Get the household we just created
   SELECT id INTO test_household_id
   FROM households
-  WHERE created_by = 'test-user-1-uuid-0000-000000000001'
+  WHERE created_by = '00000000-0000-0000-0000-000000000001'::uuid
   ORDER BY created_at DESC
   LIMIT 1;
   
   -- Try to add self as member
   INSERT INTO household_members (household_id, user_id, role)
-  VALUES (test_household_id, 'test-user-1-uuid-0000-000000000001', 'admin')
+  VALUES (test_household_id, '00000000-0000-0000-0000-000000000001'::uuid, 'admin')
   RETURNING id INTO test_member_id;
   
   IF test_member_id IS NULL THEN
@@ -184,13 +184,13 @@ DECLARE
   household_count INTEGER;
 BEGIN
   -- Set session to test user 1
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', 'test-user-1-uuid-0000-000000000001')::text, true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001')::text, true);
   
   -- Try to view households
   SELECT COUNT(*)
   INTO household_count
   FROM households
-  WHERE created_by = 'test-user-1-uuid-0000-000000000001';
+  WHERE created_by = '00000000-0000-0000-0000-000000000001'::uuid;
   
   IF household_count = 0 THEN
     RAISE EXCEPTION 'User cannot view their own household';
@@ -209,14 +209,14 @@ DECLARE
   can_see_other BOOLEAN;
 BEGIN
   -- Create household as user 2 (bypass RLS for setup)
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', 'test-user-2-uuid-0000-000000000002')::text, true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000002')::text, true);
   
   INSERT INTO households (name, created_by)
-  VALUES ('User 2 Household', 'test-user-2-uuid-0000-000000000002')
+  VALUES ('User 2 Household', '00000000-0000-0000-0000-000000000002'::uuid)
   RETURNING id INTO other_household_id;
   
   -- Switch to user 1 and try to see user 2's household
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', 'test-user-1-uuid-0000-000000000001')::text, true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001')::text, true);
   
   SELECT EXISTS (
     SELECT 1
@@ -241,12 +241,12 @@ DECLARE
   test_receipt_id UUID;
 BEGIN
   -- Set session to test user 1
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', 'test-user-1-uuid-0000-000000000001')::text, true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001')::text, true);
   
   -- Get user's household
   SELECT id INTO test_household_id
   FROM households
-  WHERE created_by = 'test-user-1-uuid-0000-000000000001'
+  WHERE created_by = '00000000-0000-0000-0000-000000000001'::uuid
   ORDER BY created_at DESC
   LIMIT 1;
   
@@ -286,12 +286,12 @@ BEGIN
   -- Get user 2's household
   SELECT id INTO other_household_id
   FROM households
-  WHERE created_by = 'test-user-2-uuid-0000-000000000002'
+  WHERE created_by = '00000000-0000-0000-0000-000000000002'::uuid
   ORDER BY created_at DESC
   LIMIT 1;
   
   -- Set session to test user 1
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', 'test-user-1-uuid-0000-000000000001')::text, true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001')::text, true);
   
   -- Try to create receipt in user 2's household (should fail)
   BEGIN
@@ -328,7 +328,7 @@ END $$;
 
 DO $$
 DECLARE
-  new_user_id UUID := 'test-user-3-uuid-0000-000000000003';
+  new_user_id UUID := '00000000-0000-0000-0000-000000000003'::uuid;
   profile_exists BOOLEAN;
 BEGIN
   -- Create new user
@@ -372,12 +372,12 @@ DECLARE
   test_receipt_id UUID;
 BEGIN
   -- Set session to test user 1
-  PERFORM set_config('request.jwt.claims', json_build_object('sub', 'test-user-1-uuid-0000-000000000001')::text, true);
+  PERFORM set_config('request.jwt.claims', json_build_object('sub', '00000000-0000-0000-0000-000000000001')::text, true);
   
   -- Get user's household
   SELECT id INTO test_household_id
   FROM households
-  WHERE created_by = 'test-user-1-uuid-0000-000000000001'
+  WHERE created_by = '00000000-0000-0000-0000-000000000001'::uuid
   ORDER BY created_at DESC
   LIMIT 1;
   
@@ -416,23 +416,43 @@ BEGIN
   -- Delete test data
   DELETE FROM receipt_items WHERE receipt_id IN (
     SELECT id FROM receipts WHERE household_id IN (
-      SELECT id FROM households WHERE created_by LIKE 'test-user-%'
+      SELECT id FROM households WHERE created_by IN (
+        '00000000-0000-0000-0000-000000000001'::uuid,
+        '00000000-0000-0000-0000-000000000002'::uuid
+      )
     )
   );
   
   DELETE FROM receipts WHERE household_id IN (
-    SELECT id FROM households WHERE created_by LIKE 'test-user-%'
+    SELECT id FROM households WHERE created_by IN (
+      '00000000-0000-0000-0000-000000000001'::uuid,
+      '00000000-0000-0000-0000-000000000002'::uuid
+    )
   );
   
   DELETE FROM household_members WHERE household_id IN (
-    SELECT id FROM households WHERE created_by LIKE 'test-user-%'
+    SELECT id FROM households WHERE created_by IN (
+      '00000000-0000-0000-0000-000000000001'::uuid,
+      '00000000-0000-0000-0000-000000000002'::uuid
+    )
   );
   
-  DELETE FROM households WHERE created_by LIKE 'test-user-%';
+  DELETE FROM households WHERE created_by IN (
+    '00000000-0000-0000-0000-000000000001'::uuid,
+    '00000000-0000-0000-0000-000000000002'::uuid
+  );
   
-  DELETE FROM user_profiles WHERE id LIKE 'test-user-%';
+  DELETE FROM user_profiles WHERE id IN (
+    '00000000-0000-0000-0000-000000000001'::uuid,
+    '00000000-0000-0000-0000-000000000002'::uuid,
+    '00000000-0000-0000-0000-000000000003'::uuid
+  );
   
-  DELETE FROM auth.users WHERE id LIKE 'test-user-%';
+  DELETE FROM auth.users WHERE id IN (
+    '00000000-0000-0000-0000-000000000001'::uuid,
+    '00000000-0000-0000-0000-000000000002'::uuid,
+    '00000000-0000-0000-0000-000000000003'::uuid
+  );
   
   RAISE NOTICE '🧹 Test data cleaned up';
 END $$;
