@@ -510,6 +510,11 @@ whatebuy/
 - **[Product Specification](./docs/2_PRODUCT_SPECIFICATION.md)** - Features, UX, user personas
 - **[Implementation Plan](./docs/IMPLEMENTATION_PLAN.md)** - Technical roadmap, timeline, budget
 - **[Technical Architecture](./docs/TECHNICAL_ARCHITECTURE.md)** - System design, data flow
+- **[Implementation Roadmap](./IMPLEMENTATION_ROADMAP.md)** - ⭐ Complete Phase 4-8 guide
+- **[Database Schema](./supabase/SCHEMA.md)** - PostgreSQL tables, RLS policies
+- **[Business Logic](./shared/BUSINESS_LOGIC.md)** - Parsers, categorization, analytics
+- **[Progress Report](./PROGRESS.md)** - Detailed status of Phases 1-3
+- **[Achievements](./ACHIEVEMENTS.md)** - Project milestones and metrics
 - **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding assistant guidelines
 
 ## 🛠 Technology Stack
@@ -545,31 +550,73 @@ whatebuy/
 Core business logic, types, and utilities shared across all platforms.
 
 ```typescript
-import { formatCurrency, calculateBudgetProgress } from '@receiptor/shared';
+import {
+  // Parsers
+  parseVeryfiReceipt,
+  validateParsedReceipt,
 
+  // Categorization
+  classifyItemByRules,
+  getCategoryDisplayName,
+
+  // Analytics
+  calculateSpendingTrend,
+  analyzeCategorySpending,
+  assessBudgetHealth,
+
+  // Utilities
+  formatCurrency,
+  calculateBudgetProgress,
+} from '@receiptor/shared';
+
+// Parse receipt
+const parsed = parseVeryfiReceipt(ocrResponse);
+
+// Classify items
+const prediction = classifyItemByRules({ name: 'Fresh Banana' });
+// { category: 'fruits_vegetables', confidence: 0.85 }
+
+// Calculate analytics
+const trend = calculateSpendingTrend(receipts, 'monthly');
+const insights = analyzeCategorySpending(items);
+
+// Format currency
 const formatted = formatCurrency(1234.56, 'SEK'); // "1 234,56 kr"
-const progress = calculateBudgetProgress(receipts, 5000);
 ```
 
 **Status:** ✅ Complete (v0.1.0)
 
-- TypeScript types for all entities
-- Zod validation schemas
-- Budget calculation utilities
-- Currency/date formatters
-- 80%+ test coverage
+- ✅ TypeScript types for all entities
+- ✅ Zod validation schemas
+- ✅ Receipt parser (Veryfi + generic OCR)
+- ✅ Category classifier (200+ keywords, GPT-4)
+- ✅ Analytics engine (trends, insights, health)
+- ✅ Budget calculation utilities
+- ✅ Currency/date formatters
+- ✅ **75 tests passing, 80%+ coverage**
 
 ### `mobile` (React Native)
 
-**Status:** 🚧 Coming in Phase 4
+**Status:** � Planned (Phase 4)
+
+See [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md) for complete setup instructions.
 
 ### `web` (Next.js)
 
-**Status:** 🚧 Coming in Phase 5
+**Status:** � Planned (Phase 5)
+
+See [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md) for complete setup instructions.
 
 ### `supabase` (Database)
 
-**Status:** 🚧 Coming in Phase 2
+**Status:** ✅ Complete (Phase 2)
+
+- 11 tables with complete schema
+- 30+ Row Level Security policies
+- Edge Functions (OpenAI categorization)
+- Complete migrations and seed data
+
+See [supabase/SCHEMA.md](./supabase/SCHEMA.md) for database documentation.
 
 ## 🧪 Testing
 
@@ -609,62 +656,65 @@ See [.github/copilot-instructions.md](./.github/copilot-instructions.md) for det
 ### Phase 1: Foundation ✅ COMPLETE
 
 - [x] Monorepo setup (Turborepo)
-- [x] TypeScript configuration
-- [x] ESLint + Prettier
+- [x] TypeScript strict mode configuration
+- [x] ESLint + Prettier with pre-commit hooks
 - [x] Shared package with types & utils
-- [x] Unit tests (80%+ coverage)
-- [x] Git hooks
+- [x] Unit tests (11 tests, 80%+ coverage)
+- [x] Git hooks and conventional commits
 
 ### Phase 2: Database & Backend ✅ COMPLETE
 
-- [x] Supabase project schema
-- [x] 11 tables with relationships
+- [x] Supabase database schema (11 tables)
+- [x] Complete relationships and indexes
 - [x] Row Level Security (30+ policies)
-- [x] Edge Functions (categorize-receipt)
-- [x] Seed data & migrations
-- [x] Comprehensive documentation
+- [x] Edge Functions (categorize-receipt with OpenAI)
+- [x] Seed data & migrations (3 migration files)
+- [x] Comprehensive documentation (SCHEMA.md)
 
-### Phase 3: Shared Business Logic 📋 PLANNED
+### Phase 3: Shared Business Logic ✅ COMPLETE
 
-- [ ] Receipt parsing logic
-- [ ] Category classification
-- [ ] Analytics engine
-- [ ] Budget tracking
+- [x] Receipt parser (Veryfi + generic OCR, multi-format dates)
+- [x] Category classifier (200+ keywords EN/SV, GPT-4 integration)
+- [x] Analytics engine (trends, insights, budget health, price comparison)
+- [x] 75 tests passing (24 new tests, 80%+ coverage)
+- [x] Complete API documentation (BUSINESS_LOGIC.md)
 
-### Phase 4: Mobile App 📋 PLANNED
+### Phase 4: Mobile App 📋 IN PLANNING
 
-- [ ] React Native setup
-- [ ] Navigation structure
+- [ ] React Native setup with Expo
+- [ ] Navigation structure (React Navigation 6)
 - [ ] Authentication screens
 - [ ] Core features (receipts, budgets, analytics)
 
+**See [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md) for complete Phase 4-8 details**
+
 ### Phase 5: Web App 📋 PLANNED
 
-- [ ] Next.js setup
-- [ ] Responsive design
-- [ ] Dashboard
-- [ ] Admin features
+- [ ] Next.js 14 setup (App Router)
+- [ ] Tailwind CSS + Shadcn/ui
+- [ ] Responsive dashboard
+- [ ] Server-side auth
 
 ### Phase 6: Core Features 📋 PLANNED
 
-- [ ] Store OAuth integrations
-- [ ] OCR receipt scanning
-- [ ] AI categorization
-- [ ] Premium subscriptions
+- [ ] Store OAuth integrations (ICA, Coop, Willys)
+- [ ] OCR receipt scanning (Veryfi)
+- [ ] AI categorization (GPT-4)
+- [ ] Premium subscriptions (Stripe)
 
 ### Phase 7: Testing & Quality 📋 PLANNED
 
 - [ ] E2E tests (Playwright/Detox)
 - [ ] Performance testing
 - [ ] Security audit
-- [ ] Accessibility compliance
+- [ ] Accessibility compliance (WCAG AA)
 
 ### Phase 8: CI/CD & Deployment 📋 PLANNED
 
 - [ ] GitHub Actions pipelines
 - [ ] Automated testing
-- [ ] Deployment workflows
-- [ ] Monitoring & alerts
+- [ ] Deployment workflows (Vercel + EAS)
+- [ ] Monitoring & alerts (Sentry + PostHog)
 
 ## 🤝 Contributing
 
@@ -688,7 +738,8 @@ MIT License - See [LICENSE](./LICENSE) for details
 ---
 
 **Last Updated:** October 8, 2025  
-**Version:** 0.1.0 (Phase 1 Complete)  
-**Status:** Active Development 🚀
+**Version:** 0.3.0 (Phase 3 Complete)  
+**Status:** Active Development 🚀  
+**Next Phase:** Mobile App Foundation (React Native)
 
 Made with ❤️ by the Receiptor Team
