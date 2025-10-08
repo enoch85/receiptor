@@ -4,8 +4,6 @@
 
 **Smart grocery budget tracking for households**
 
-**Smart grocery budget tracking for households**
-
 A modern household grocery budget tracker with automatic receipt collection, AI-powered insights, and secure multi-user collaboration.
 
 ---
