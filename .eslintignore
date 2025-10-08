@@ -4,7 +4,16 @@ build
 .next
 coverage
 *.config.js
+node_modules/
+dist/
+build/
+.next/
+.expo/
+.turbo/
+coverage/
 *.min.js
+web/
+docker/
 .turbo
 .expo
 ios

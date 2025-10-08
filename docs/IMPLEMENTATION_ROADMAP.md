@@ -2,153 +2,318 @@
 
 ## Executive Summary
 
-**Status as of October 8, 2025:**
+**Status as of October 8, 2025 - 16:45 CET:**
 
 - ✅ **Phase 1-3 Complete** (Foundation, Database, Business Logic)
-- 📋 **Phase 4-8 Remaining** (Mobile, Web, Features, Testing, Deployment)
+- � **Phase 4 Started** (Mobile App Foundation - 30% complete)
+- 🟡 **Phase 5 Started** (Web App Foundation - 20% complete)
+- ❌ **Phase 6-8 Not Started** (Features, Testing, Deployment)
 
-**What's Built:**
+**What's ACTUALLY Working Right Now:**
 
-- Production-ready monorepo with Turborepo
-- Complete PostgreSQL database with Row Level Security
+✅ **Shared Package (100% functional)**
+- Production-ready monorepo with Turborepo v2.5.8
+- Complete PostgreSQL database schema (11 tables, 30+ RLS policies)
 - Comprehensive business logic (parsers, categorization, analytics)
-- 75 tests passing with 80%+ coverage
+- **75 tests passing with 80%+ coverage**
 - Zero technical debt
 
-**Next Steps:**
+✅ **Docker Testing Environment (100% functional)**
+- PostgreSQL 15.1 running (healthy)
+- Next.js web app running with hot reload
+- Organized structure in `docker/` folder
+- Simple npm scripts (`npm run docker:up/down/logs/clean`)
 
-- Phase 4: Mobile App (React Native + Expo)
-- Phase 5: Web App (Next.js 14)
-- Phase 6: Feature Implementation
-- Phase 7: Testing & Quality
-- Phase 8: CI/CD & Deployment
+🟡 **Mobile App (30% functional - scaffolding only)**
+- ✅ React Native + Expo setup complete
+- ✅ Navigation structure (Auth & Main flows)
+- ✅ Login screen UI with validation
+- ✅ Supabase client configured
+- ❌ Authentication NOT connected (no backend integration)
+- ❌ Sign up screen missing
+- ❌ Dashboard empty placeholder only
+- ❌ No actual features working
+
+🟡 **Web App (20% functional - landing page only)**
+- ✅ Next.js 14 with Tailwind CSS
+- ✅ Landing page displaying
+- ✅ Hot reload working
+- ✅ Environment configuration shown
+- ❌ Sign In/Sign Up links result in 404 (routes don't exist)
+- ❌ No authentication pages
+- ❌ No dashboard
+- ❌ No features implemented
+
+**Critical Reality Check:**
+
+- **What users can do:** See a landing page. That's it.
+- **What doesn't work:** Everything else (auth, receipts, budgets, all features)
+- **Estimated completion:** 60-80 hours of development work remaining
+
+**Immediate Next Steps (Priority Order):**
+
+1. **Phase 5A:** Create working authentication pages (2-3 hours)
+2. **Phase 5B:** Connect auth to Supabase backend (2-3 hours)
+3. **Phase 4A:** Complete mobile auth screens (2-3 hours)
+4. **Phase 6A:** Build minimal dashboard with mock data (3-4 hours)
+5. **Phase 6B:** Implement receipt upload/list (4-6 hours)
+
+---
+
+## Reality Check: What Works vs What Doesn't
+
+### ✅ FULLY FUNCTIONAL (Can use right now)
+
+**1. Shared Business Logic Package**
+```bash
+cd shared && npm test  # 75/75 tests pass
+```
+- `parseReceiptText()` - Extracts items from receipt
+- `classifyItem()` - AI categorization (Dairy, Produce, etc.)
+- `calculateBudgetProgress()` - Budget vs spending
+- `formatCurrency()` - "245.50 SEK"
+- All utilities tested and working
+
+**2. Database Schema**
+```bash
+docker-compose -f docker/docker-compose.yml exec postgres psql -U postgres
+\dt  # See all 11 tables
+```
+- Users, households, receipts, budgets all defined
+- Row Level Security policies ready
+- Migration files exist and work
+
+**3. Docker Environment**
+```bash
+npm run docker:up  # Starts everything
+```
+- PostgreSQL container running
+- Next.js app running on port 3000
+- Hot reload enabled
+- Logs accessible
+
+### 🟡 PARTIALLY FUNCTIONAL (Exists but doesn't work)
+
+**1. Mobile App Login Screen**
+- **What works:** UI renders, validation logic
+- **What doesn't:** Clicking "Sign In" does nothing (no backend)
+- **Status:** Scaffolding only, 0% functional
+
+**2. Web App Landing Page**
+- **What works:** Page displays, hot reload
+- **What doesn't:** All links (Sign In/Sign Up) lead to 404
+- **Status:** Static page only, 0% functional features
+
+**3. Navigation**
+- **What works:** Routes defined in code
+- **What doesn't:** Routes don't exist, no pages created
+- **Status:** Structure only, 0% functional
+
+### ❌ COMPLETELY NON-FUNCTIONAL (Not built yet)
+
+**Authentication:**
+- ❌ Sign up page (doesn't exist)
+- ❌ Sign in page (doesn't exist)
+- ❌ Password reset (doesn't exist)
+- ❌ Email confirmation (doesn't exist)
+- ❌ Session management (not connected)
+
+**Core Features:**
+- ❌ Receipt upload
+- ❌ Receipt scanning/OCR
+- ❌ Receipt list
+- ❌ Receipt details
+- ❌ Budget creation
+- ❌ Budget tracking
+- ❌ Household management
+- ❌ Dashboard with real data
+- ❌ Category breakdown
+- ❌ Spending charts
+
+**Advanced Features:**
+- ❌ Store integrations
+- ❌ OAuth connections
+- ❌ AI insights
+- ❌ Price trends
+- ❌ Carbon tracking
+- ❌ Multi-user sync
+- ❌ Push notifications
+- ❌ Email alerts
 
 ---
 
 ## Phase 4: Mobile App Foundation (React Native + Expo)
 
-### Goals
+**Status:** 🟡 30% Complete (Started October 8, 2025)
 
-- Set up React Native with Expo for iOS and Android
-- Implement navigation and routing
-- Create authentication flow
-- Build core UI component library
-- Integrate Supabase client
+### What's Done ✅
 
-### Setup Commands
+- ✅ Expo + React Native setup
+- ✅ TypeScript configuration
+- ✅ Navigation structure (AppNavigator, AuthNavigator, MainNavigator)
+- ✅ Supabase client configuration
+- ✅ useAuth hook (not connected)
+- ✅ LoginScreen UI with validation
+- ✅ LoadingScreen
+- ✅ DashboardScreen (empty placeholder)
+- ✅ Theme configuration
+- ✅ Constants file
+- ✅ Type-safe navigation types
 
-```bash
-# Navigate to project root
-cd /workspaces/whatebuy
+### What's NOT Done ❌
 
-# Create Expo app with TypeScript
-npx create-expo-app mobile --template expo-template-blank-typescript
+- ❌ SignUpScreen
+- ❌ ForgotPasswordScreen
+- ❌ Onboarding flow
+- ❌ Actual Supabase authentication integration
+- ❌ All feature screens (receipts, budgets, households, settings)
+- ❌ All feature components
+- ❌ All hooks (except useAuth shell)
+- ❌ Charts and visualizations
+- ❌ Camera/image picker integration
+- ❌ Push notifications
+- ❌ Deep linking
 
-# Navigate to mobile directory
-cd mobile
-
-# Install dependencies
-npm install @react-navigation/native @react-navigation/native-stack
-npm install react-native-screens react-native-safe-area-context
-npm install @react-navigation/bottom-tabs @react-navigation/drawer
-npm install react-native-paper react-native-vector-icons
-npm install @supabase/supabase-js @react-native-async-storage/async-storage
-npm install zustand @tanstack/react-query
-npm install react-hook-form zod
-npm install expo-image-picker expo-camera expo-file-system
-npm install victory-native react-native-svg
-
-# Install dev dependencies
-npm install --save-dev @types/react @types/react-native
-npm install --save-dev eslint @typescript-eslint/eslint-plugin
-npm install --save-dev prettier eslint-config-prettier
-
-# Link shared package
-npm install ../shared
-```
-
-### File Structure
+### Files Created (11 files, ~800 LOC)
 
 ```
 mobile/
-├── app/                        # Expo Router (if using)
+├── src/
+│   ├── hooks/
+│   │   └── useAuth.ts              ✅ Created (NOT functional)
+│   ├── navigation/
+│   │   ├── AppNavigator.tsx        ✅ Created
+│   │   ├── AuthNavigator.tsx       ✅ Created
+│   │   └── MainNavigator.tsx       ✅ Created
+│   ├── screens/
+│   │   ├── LoadingScreen.tsx       ✅ Created
+│   │   ├── DashboardScreen.tsx     ✅ Created (empty)
+│   │   └── auth/
+│   │       └── LoginScreen.tsx     ✅ Created (UI only, not functional)
+│   ├── services/
+│   │   └── supabase.ts             ✅ Created (configured, not used)
+│   ├── types/
+│   │   └── navigation.ts           ✅ Created
+│   └── utils/
+│       ├── theme.ts                ✅ Created
+│       └── constants.ts            ✅ Created
+├── App.tsx                         ✅ Created
+├── package.json                    ✅ Created
+└── tsconfig.json                   ✅ Created
+```
+
+### Still Need to Create (70+ files)
+
+```
+mobile/
 ├── src/
 │   ├── screens/
 │   │   ├── auth/
-│   │   │   ├── LoginScreen.tsx
-│   │   │   ├── SignUpScreen.tsx
-│   │   │   └── OnboardingScreen.tsx
-│   │   ├── dashboard/
-│   │   │   └── DashboardScreen.tsx
+│   │   │   ├── SignUpScreen.tsx              ❌ NOT CREATED
+│   │   │   ├── ForgotPasswordScreen.tsx      ❌ NOT CREATED
+│   │   │   └── OnboardingScreen.tsx          ❌ NOT CREATED
 │   │   ├── receipts/
-│   │   │   ├── ReceiptListScreen.tsx
-│   │   │   ├── ReceiptDetailScreen.tsx
-│   │   │   └── ReceiptCaptureScreen.tsx
+│   │   │   ├── ReceiptListScreen.tsx         ❌ NOT CREATED
+│   │   │   ├── ReceiptDetailScreen.tsx       ❌ NOT CREATED
+│   │   │   └── ReceiptCaptureScreen.tsx      ❌ NOT CREATED
 │   │   ├── budgets/
-│   │   │   ├── BudgetListScreen.tsx
-│   │   │   └── BudgetDetailScreen.tsx
+│   │   │   ├── BudgetListScreen.tsx          ❌ NOT CREATED
+│   │   │   └── BudgetDetailScreen.tsx        ❌ NOT CREATED
 │   │   ├── households/
-│   │   │   ├── HouseholdScreen.tsx
-│   │   │   └── HouseholdSettingsScreen.tsx
+│   │   │   ├── HouseholdScreen.tsx           ❌ NOT CREATED
+│   │   │   └── HouseholdSettingsScreen.tsx   ❌ NOT CREATED
 │   │   └── settings/
-│   │       └── SettingsScreen.tsx
+│   │       └── SettingsScreen.tsx            ❌ NOT CREATED
 │   ├── components/
-│   │   ├── common/
-│   │   │   ├── Button.tsx
-│   │   │   ├── Card.tsx
-│   │   │   ├── Input.tsx
-│   │   │   └── LoadingSpinner.tsx
-│   │   ├── receipts/
-│   │   │   ├── ReceiptCard.tsx
-│   │   │   └── ReceiptList.tsx
-│   │   ├── budgets/
-│   │   │   ├── BudgetProgress.tsx
-│   │   │   └── BudgetCard.tsx
-│   │   └── charts/
-│   │       ├── SpendingChart.tsx
-│   │       └── CategoryChart.tsx
-│   ├── navigation/
-│   │   ├── AppNavigator.tsx
-│   │   ├── AuthNavigator.tsx
-│   │   └── MainNavigator.tsx
+│   │   ├── common/                           ❌ NOT CREATED (all)
+│   │   ├── receipts/                         ❌ NOT CREATED (all)
+│   │   ├── budgets/                          ❌ NOT CREATED (all)
+│   │   └── charts/                           ❌ NOT CREATED (all)
 │   ├── hooks/
-│   │   ├── useAuth.ts
-│   │   ├── useReceipts.ts
-│   │   ├── useBudgets.ts
-│   │   └── useHousehold.ts
-│   ├── store/
-│   │   ├── authStore.ts
-│   │   ├── householdStore.ts
-│   │   └── index.ts
-│   ├── services/
-│   │   ├── supabase.ts
-│   │   ├── api.ts
-│   │   └── veryfi.ts
-│   ├── utils/
-│   │   ├── theme.ts
-│   │   └── constants.ts
-│   └── types/
-│       └── navigation.ts
-├── assets/
-│   ├── images/
-│   └── fonts/
-├── App.tsx
-├── app.json
-├── package.json
-└── tsconfig.json
+│   │   ├── useReceipts.ts                    ❌ NOT CREATED
+│   │   ├── useBudgets.ts                     ❌ NOT CREATED
+│   │   └── useHousehold.ts                   ❌ NOT CREATED
+│   └── store/                                ❌ NOT CREATED (all)
 ```
 
-### Key Implementation Files
+---
 
-#### 1. Supabase Client (`src/services/supabase.ts`)
+## Phase 5: Web App (Next.js 14)
 
-```typescript
-import 'react-native-url-polyfill/auto';
-import { createClient } from '@supabase/supabase-js';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+**Status:** 🟡 20% Complete (Started October 8, 2025)
 
-const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!;
+### What's Done ✅
+
+- ✅ Next.js 14 with App Router
+- ✅ TypeScript configuration
+- ✅ Tailwind CSS setup
+- ✅ Landing page (`src/app/page.tsx`)
+- ✅ Root layout
+- ✅ Environment configuration
+- ✅ Hot reload working
+- ✅ Supabase client configured (not used)
+- ✅ Docker integration
+
+### What's NOT Done ❌
+
+- ❌ Sign in page (`/login` = 404)
+- ❌ Sign up page (`/signup` = 404)
+- ❌ Dashboard page (`/dashboard` = 404)
+- ❌ All auth integration
+- ❌ All feature pages
+- ❌ All components
+- ❌ All hooks
+- ❌ All API routes
+- ❌ All middleware
+
+### Files Created (7 files, ~200 LOC)
+
+```
+web/
+├── src/
+│   └── app/
+│       ├── layout.tsx              ✅ Created
+│       ├── page.tsx                ✅ Created (landing only)
+│       └── globals.css             ✅ Created
+├── next.config.js                  ✅ Created
+├── tailwind.config.js              ✅ Created
+├── postcss.config.js               ✅ Created
+├── package.json                    ✅ Created
+└── tsconfig.json                   ✅ Created
+```
+
+### Still Need to Create (50+ files)
+
+```
+web/
+├── src/
+│   ├── app/
+│   │   ├── (auth)/
+│   │   │   ├── login/
+│   │   │   │   └── page.tsx        ❌ NOT CREATED (causes 404!)
+│   │   │   ├── signup/
+│   │   │   │   └── page.tsx        ❌ NOT CREATED (causes 404!)
+│   │   │   └── layout.tsx          ❌ NOT CREATED
+│   │   ├── (dashboard)/
+│   │   │   ├── dashboard/
+│   │   │   │   └── page.tsx        ❌ NOT CREATED
+│   │   │   ├── receipts/
+│   │   │   │   └── page.tsx        ❌ NOT CREATED
+│   │   │   ├── budgets/
+│   │   │   │   └── page.tsx        ❌ NOT CREATED
+│   │   │   └── layout.tsx          ❌ NOT CREATED
+│   │   └── api/                    ❌ NOT CREATED (all routes)
+│   ├── components/                 ❌ NOT CREATED (all)
+│   ├── hooks/                      ❌ NOT CREATED (all)
+│   ├── lib/                        ❌ NOT CREATED (all)
+│   └── utils/                      ❌ NOT CREATED (all)
+```
+
+---
+
+## Honest Timeline Estimate
+
+### To Get BASIC Functionality (User can sign up, sign in, see dashboard)
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {

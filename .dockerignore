@@ -1,0 +1,37 @@
+# General
+node_modules/
+npm-debug.log*
+.DS_Store
+*.log
+
+# Development
+.expo/
+.next/
+.turbo/
+dist/
+build/
+coverage/
+
+# Git
+.git/
+.github/
+
+# IDE
+.vscode/
+.idea/
+
+# Docs
+docs/
+README.md
+
+# Tests
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+
+# Environment
+.env.local
+.env.production
+.env.development

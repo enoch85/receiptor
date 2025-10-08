@@ -21,7 +21,13 @@
     "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,json,md}\"",
     "type-check": "turbo run type-check",
     "clean": "turbo run clean && rm -rf node_modules",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "docker:up": "./docker/scripts/start.sh",
+    "docker:down": "./docker/scripts/stop.sh",
+    "docker:logs": "./docker/scripts/logs.sh",
+    "docker:clean": "./docker/scripts/clean.sh",
+    "docker:rebuild": "docker-compose -f docker/docker-compose.yml up -d --build",
+    "test:gui": "./docker/scripts/start.sh && echo '\n🎉 Open http://localhost:3000 to see the web app!'"
   },
   "devDependencies": {
     "@types/node": "^20.10.0",

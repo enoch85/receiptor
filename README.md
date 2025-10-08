@@ -22,7 +22,22 @@ A modern, secure, household-first grocery budget tracking application with autom
 
 This repository contains comprehensive competitive research and analysis of grocery budget tracking apps in the Scandinavian market, with detailed implementation plans for building **Receiptor** - a superior product focused on household collaboration and security.
 
-## 📁 Repository Contents
+## � Quick Start - Test the App!
+
+Want to see Receiptor in action? We have a complete Docker testing environment:
+
+```bash
+# Start everything (mobile app + web app + Supabase backend)
+npm run test:gui
+
+# Then open your browser:
+# 🌐 Web App: http://localhost:3000
+# 📱 Mobile App: http://localhost:19006
+```
+
+**That's it!** Hot reload enabled. See [docker/README.md](./docker/README.md) for details.
+
+## �📁 Repository Contents
 
 ### Core Documentation (in `/docs` folder)
 
