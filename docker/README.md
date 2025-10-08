@@ -13,6 +13,7 @@ npm run test:gui
 ```
 
 Then open:
+
 - **Web App:** http://localhost:3000
 - **Mobile App:** http://localhost:19006
 
@@ -22,32 +23,36 @@ That's it! 🎉
 
 ## 📦 What's Included
 
-### Supabase Backend (Latest Versions)
-- ✨ **PostgreSQL 16.6** - Latest database
-- 🔐 **GoTrue** (latest) - Authentication
-- 🔌 **PostgREST** (latest) - REST API
-- ⚡ **Realtime** (latest) - WebSocket subscriptions
-- 📦 **Storage API** (latest) - File storage
-- 🎨 **Supabase Studio** (latest) - Admin UI
-- 🖼️  **ImgProxy** (latest) - Image transformations
-- 📧 **Inbucket** (latest) - Email testing
+### Complete Supabase Backend Stack (Latest Versions)
+
+- ✨ **PostgreSQL 15.1** - Supabase-optimized database
+- 🔐 **GoTrue v2.132** - Complete authentication (email, OAuth, magic links)
+- 🔌 **PostgREST v11.2** - Auto-generated REST API
+- ⚡ **Realtime v2.25** - WebSocket subscriptions (database changes)
+- 📦 **Storage API v0.43** - File storage with transformations
+- 🎨 **Supabase Studio** - Visual database editor & admin UI
+- 🖼️ **ImgProxy v3.8** - On-the-fly image transformations
+- 📧 **Inbucket** - Email testing server (catches all emails)
+- 🌉 **Kong 2.8** - API Gateway (routes all requests)
 
 ### Receiptor Apps (Hot Reload ✅)
-- 🌐 **Next.js 14** - Web app with Turbo mode
-- 📱 **Expo (latest)** - Mobile app web preview
+
+- 🌐 **Next.js 14** - Web app with Turbo mode & App Router
+- 📱 **React Native (Expo)** - Mobile app (coming soon)
 - 🔄 **Auto-reload** - Changes reflect instantly
+- 🔥 **Hot Module Replacement** - No manual refreshes
 
 ---
 
 ## 🎯 Service URLs
 
-| Service | URL | Purpose |
-|---------|-----|---------|
-| **Web App** | http://localhost:3000 | Next.js web interface |
-| **Mobile App** | http://localhost:19006 | Expo web preview |
-| **Supabase Studio** | http://localhost:3001 | Database admin UI |
-| **Email Inbox** | http://localhost:9000 | Test emails |
-| **API Gateway** | http://localhost:8000 | Supabase API |
+| Service             | URL                   | Purpose                | Credentials               |
+| ------------------- | --------------------- | ---------------------- | ------------------------- |
+| **Web App**         | http://localhost:3000 | Next.js web interface  | Sign up to create account |
+| **Supabase Studio** | http://localhost:3030 | Database admin UI      | No login required (dev)   |
+| **Email Inbox**     | http://localhost:9000 | Test emails (Inbucket) | No login required         |
+| **API Gateway**     | http://localhost:8000 | Supabase API endpoint  | Use anon key in app       |
+| **Database**        | localhost:5432        | PostgreSQL             | postgres/postgres         |
 
 ---
 
@@ -104,11 +109,13 @@ npm run docker:clean
 ### 3. Test Hot Reload
 
 **Web App:**
+
 1. Edit `/web/src/app/page.tsx`
 2. Save file
 3. Browser auto-refreshes instantly ⚡
 
 **Mobile App:**
+
 1. Edit `/mobile/src/screens/DashboardScreen.tsx`
 2. Save file
 3. Expo reloads automatically ⚡
@@ -166,16 +173,19 @@ npm run docker:clean
 ### API Keys (Already configured in env files)
 
 **Anon Key** (public, safe for frontend):
+
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
 ```
 
 **Service Role Key** (secret, server-side only):
+
 ```
 eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
 ```
 
 **JWT Secret:**
+
 ```
 super-secret-jwt-token-with-at-least-32-characters-long
 ```
@@ -191,6 +201,7 @@ Password: postgres
 ```
 
 **Direct connection:**
+
 ```bash
 docker-compose -f docker/docker-compose.yml exec postgres psql -U postgres
 ```
@@ -278,6 +289,7 @@ docker/
 ## 🎓 Best Practices
 
 ### DO ✅
+
 - Use `npm run docker:up` from project root
 - Check logs with `npm run docker:logs`
 - Access apps through browser (not containers)
@@ -285,6 +297,7 @@ docker/
 - Use Supabase Studio to view/edit database
 
 ### DON'T ❌
+
 - Don't commit .env.local files with real credentials
 - Don't expose Docker ports to internet
 - Don't use development keys in production
@@ -357,7 +370,7 @@ docker-compose -f docker/docker-compose.yml exec postgres psql -U postgres
 ✅ **One Command** - Start with `npm run test:gui`  
 ✅ **Production-Like** - Tests real user experience  
 ✅ **Easy Cleanup** - `npm run docker:clean`  
-✅ **Well Organized** - Everything in `docker/` folder  
+✅ **Well Organized** - Everything in `docker/` folder
 
 ---
 

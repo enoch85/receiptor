@@ -1,0 +1,152 @@
+# Simple Docker Compose for Authentication Testing
+# Use this for faster startup during development
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: supabase/postgres:15.1.0.147
+    container_name: receiptor-db-simple
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ../supabase/migrations:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - receiptor
+
+  # Supabase Auth (GoTrue)
+  auth:
+    image: supabase/gotrue:v2.132.3
+    container_name: receiptor-auth-simple
+    restart: unless-stopped
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: http://localhost:8000
+
+      # Database
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:postgres@postgres:5432/postgres?search_path=auth
+
+      # JWT (using demo keys for dev)
+      GOTRUE_JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters-long
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: 3600
+
+      # Site config
+      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_DISABLE_SIGNUP: false
+      GOTRUE_MAILER_AUTOCONFIRM: true
+
+      # Email (stub - auto-confirm enabled)
+      GOTRUE_SMTP_HOST: mailhog
+      GOTRUE_SMTP_PORT: 1025
+      GOTRUE_SMTP_USER: ''
+      GOTRUE_SMTP_PASS: ''
+      GOTRUE_SMTP_ADMIN_EMAIL: admin@receiptor.app
+      GOTRUE_MAILER_URLPATHS_CONFIRMATION: /auth/confirm
+      GOTRUE_MAILER_URLPATHS_RECOVERY: /auth/recover
+    ports:
+      - '9999:9999'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - receiptor
+
+  # PostgREST (REST API)
+  rest:
+    image: postgrest/postgrest:v11.2.0
+    container_name: receiptor-rest-simple
+    restart: unless-stopped
+    environment:
+      PGRST_DB_URI: postgres://postgres:postgres@postgres:5432/postgres
+      PGRST_DB_SCHEMAS: public,storage
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: your-super-secret-jwt-token-with-at-least-32-characters-long
+      PGRST_DB_USE_LEGACY_GUCS: 'false'
+    ports:
+      - '3001:3000'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - receiptor
+
+  # Kong API Gateway (simple config)
+  kong:
+    image: kong:2.8.1
+    container_name: receiptor-kong-simple
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: 'off'
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_PLUGINS: request-transformer,cors,key-auth
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./supabase/kong.yml:/var/lib/kong/kong.yml:ro
+    depends_on:
+      - auth
+      - rest
+    networks:
+      - receiptor
+
+  # MailHog (email testing)
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: receiptor-mailhog
+    restart: unless-stopped
+    ports:
+      - '8025:8025' # Web UI
+      - '1025:1025' # SMTP
+    networks:
+      - receiptor
+
+  # Next.js Web App
+  web:
+    build:
+      context: ..
+      dockerfile: docker/web/Dockerfile.dev
+    container_name: receiptor-web-app
+    restart: unless-stopped
+    environment:
+      - NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
+      - NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+      - SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+    ports:
+      - '3000:3000'
+    volumes:
+      - ../web:/app/web:cached
+      - ../shared:/app/shared:cached
+      - web-node-modules:/app/web/node_modules
+    working_dir: /app/web
+    command: npm run dev
+    depends_on:
+      - kong
+      - auth
+    networks:
+      - receiptor
+
+volumes:
+  postgres-data:
+    name: receiptor-postgres-data-simple
+  web-node-modules:
+    name: receiptor-web-node-modules-simple
+
+networks:
+  receiptor:
+    name: receiptor-network-simple
+    driver: bridge
