@@ -1,4 +1,4 @@
-_format_version: "2.1"
+_format_version: '2.1'
 
 _transform: true
 
@@ -9,12 +9,6 @@ consumers:
   - username: service_role
     keyauth_credentials:
       - key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
-
-acls:
-  - consumer: anon
-    group: anon
-  - consumer: service_role
-    group: admin
 
 services:
   - name: auth-v1-open
@@ -46,7 +40,7 @@ services:
       - name: cors
 
   - name: auth-v1
-    _comment: "GoTrue: /auth/v1/* -> http://auth:9999/*"
+    _comment: 'GoTrue: /auth/v1/* -> http://auth:9999/*'
     url: http://auth:9999/
     routes:
       - name: auth-v1-all
@@ -60,7 +54,7 @@ services:
           hide_credentials: false
 
   - name: rest-v1
-    _comment: "PostgREST: /rest/v1/* -> http://rest:3000/*"
+    _comment: 'PostgREST: /rest/v1/* -> http://rest:3000/*'
     url: http://rest:3000/
     routes:
       - name: rest-v1-all
@@ -74,7 +68,7 @@ services:
           hide_credentials: true
 
   - name: realtime-v1
-    _comment: "Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*"
+    _comment: 'Realtime: /realtime/v1/* -> ws://realtime:4000/socket/*'
     url: http://realtime:4000/socket/
     routes:
       - name: realtime-v1-all
@@ -88,7 +82,7 @@ services:
           hide_credentials: false
 
   - name: storage-v1
-    _comment: "Storage: /storage/v1/* -> http://storage:5000/*"
+    _comment: 'Storage: /storage/v1/* -> http://storage:5000/*'
     url: http://storage:5000/
     routes:
       - name: storage-v1-all
@@ -99,7 +93,7 @@ services:
       - name: cors
 
   - name: meta
-    _comment: "Metadata: /pg/* -> http://meta:8080/*"
+    _comment: 'Metadata: /pg/* -> http://meta:8080/*'
     url: http://meta:8080/
     routes:
       - name: meta-all

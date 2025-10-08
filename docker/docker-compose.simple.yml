@@ -14,7 +14,7 @@ services:
       - '5432:5432'
     volumes:
       - postgres-data:/var/lib/postgresql/data
-      - ../supabase/migrations:/docker-entrypoint-initdb.d:ro
+      - ./init:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 5s
@@ -84,7 +84,7 @@ services:
     networks:
       - receiptor
 
-  # Kong API Gateway (simple config)
+  # Kong API Gateway
   kong:
     image: kong:2.8.1
     container_name: receiptor-kong-simple
@@ -94,6 +94,7 @@ services:
       KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
       KONG_DNS_ORDER: LAST,A,CNAME
       KONG_PLUGINS: request-transformer,cors,key-auth
+      KONG_LOG_LEVEL: info
     ports:
       - '8000:8000'
     volumes:
@@ -123,6 +124,7 @@ services:
     container_name: receiptor-web-app
     restart: unless-stopped
     environment:
+      # Connect through Kong API Gateway (production-like)
       - NEXT_PUBLIC_SUPABASE_URL=http://localhost:8000
       - NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
       - SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU

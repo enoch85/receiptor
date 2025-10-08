@@ -8,7 +8,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 export async function middleware(request: NextRequest) {
   // Update session (refresh if needed)
-  const response = await updateSession(request);
+  const { response, supabase } = await updateSession(request);
 
   // Protected routes that require authentication
   const protectedPaths = ['/dashboard', '/receipts', '/budgets', '/household', '/settings'];
@@ -17,7 +17,7 @@ export async function middleware(request: NextRequest) {
   if (isProtectedPath) {
     const {
       data: { user },
-    } = await (await updateSession(request)).json();
+    } = await supabase.auth.getUser();
 
     if (!user) {
       // Redirect to login if not authenticated
@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   if (isAuthPath) {
     const {
       data: { user },
-    } = await (await updateSession(request)).json();
+    } = await supabase.auth.getUser();
 
     if (user) {
       // Redirect to dashboard if already authenticated

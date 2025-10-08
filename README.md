@@ -1,4 +1,29 @@
-# Receiptor - Grocery Budget Tracking App
+# 🧾 Receiptor - Grocery Budget Tracking App
+
+> ⚠️ **WORK IN PROGRESS** - This proje**Then visit:**
+
+- 🌐 **Web App:** http://localhost:3000
+- 🆕 **Sign Up:** http://localhost:3000/signup
+- 🔐 **Login:** http://localhost:3000/login
+- 📊 **Dashboard:** http://localhost:3000/dashboard (requires login)
+- 📧 **Email Testing:** http://localhost:8025 (MailHog - see confirmation emails)
+
+**Test Account:**
+
+1. Go to http://localhost:3000/signup
+2. Create account (email is auto-confirmed in dev mode)
+3. Login at http://localhost:3000/login
+4. See your dashboard!
+
+**Or test via API:**
+
+````bash
+# Signup test
+curl -X POST http://localhost:8000/auth/v1/signup \
+  -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"test@example.com","password":"Test123!","data":{"full_name":"Test User","household_name":"Test Family"}}'
+```ve development. Authentication is working, but most features are still being built.
 
 **The smart receipt tracker for households**
 
@@ -7,8 +32,56 @@
 [![Next.js](https://img.shields.io/badge/Next.js-14-black)](https://nextjs.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-Latest-3ECF8E)](https://supabase.com/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![Progress](https://img.shields.io/badge/Progress-30%25-yellow)
 
 A modern, secure, household-first grocery budget tracking application with automatic receipt collection, AI-powered categorization, and real-time collaboration.
+
+---
+
+## 🚧 Current Status (October 8, 2025 - Authentication Working!)
+
+### ✅ What's Actually Working Right Now
+
+**Authentication System (VERIFIED):**
+- ✅ Supabase Auth API working (tested - signup & login successful)
+- ✅ PostgreSQL database with auth schema properly initialized
+- ✅ Kong API Gateway routing requests correctly
+- ✅ Email auto-confirmation in dev mode (MailHog)
+- ✅ JWT token generation and validation
+- ✅ Web UI signup form (http://localhost:3000/signup)
+- ✅ Web UI login form (http://localhost:3000/login)
+- ✅ Protected routes with middleware
+- ✅ Docker environment (all 6 services running healthy)
+
+**Backend Infrastructure:**
+- ✅ PostgreSQL 15.1 + auth schema + roles
+- ✅ Supabase GoTrue v2.132.3 (authentication service)
+- ✅ PostgREST v11.2.0 (REST API)
+- ✅ Kong 2.8.1 (API Gateway)
+- ✅ MailHog (email testing)
+- ✅ Next.js 14 dev server
+
+**Business Logic:**
+- ✅ Shared package with types and utilities
+- ✅ Receipt parsing (Veryfi + generic OCR)
+- ✅ AI categorization (200+ keywords, GPT-4 integration)
+- ✅ Analytics engine (trends, insights, budget health)
+- ✅ 75 tests passing (80%+ coverage)
+
+### ❌ What's NOT Done Yet
+
+**UI Features:**
+- ❌ BankID backend integration (UI placeholders only)
+- ❌ OAuth providers (Google/Apple - need credentials)
+- ❌ Receipt upload functionality
+- ❌ Budget management screens
+- ❌ Household member invitations
+- ❌ Analytics dashboard with charts
+- ❌ Mobile app (UI scaffolding only, no backend connection)
+
+**See [docs/CURRENT_STATUS_REALITY_CHECK.md](./docs/CURRENT_STATUS_REALITY_CHECK.md) for complete status.**
+
+---
 
 ## 🎯 Key Features
 
@@ -22,20 +95,51 @@ A modern, secure, household-first grocery budget tracking application with autom
 
 This repository contains comprehensive competitive research and analysis of grocery budget tracking apps in the Scandinavian market, with detailed implementation plans for building **Receiptor** - a superior product focused on household collaboration and security.
 
-## � Quick Start - Test the App!
+## 🚀 Quick Start - Try Authentication!
 
-Want to see Receiptor in action? We have a complete Docker testing environment:
+**Test the working authentication system:**
 
 ```bash
-# Start everything (mobile app + web app + Supabase backend)
-npm run test:gui
+# Start simplified Docker stack (faster)
+cd /workspaces/receiptor
+docker-compose -f docker/docker-compose.simple.yml up -d
 
-# Then open your browser:
-# 🌐 Web App: http://localhost:3000
-# 📱 Mobile App: http://localhost:19006
+# Or start full Supabase stack (slower but includes Studio)
+docker-compose -f docker/docker-compose.yml up -d
+````
+
+**Then visit:**
+
+- 🌐 **Web App:** http://localhost:3000
+- � **Sign Up:** http://localhost:3000/auth/signup
+- 🔐 **Login:** http://localhost:3000/auth/login
+- 📊 **Dashboard:** http://localhost:3000/dashboard (requires login)
+- 📧 **Email Testing:** http://localhost:8025 (MailHog - see confirmation emails)
+- 🎨 **Supabase Studio:** http://localhost:3030 (full stack only)
+
+**Test Account:**
+
+1. Go to http://localhost:3000/auth/signup
+2. Create account (email is auto-confirmed in dev mode)
+3. Login at http://localhost:3000/auth/login
+4. See your dashboard!
+
+**Docker Commands:**
+
+```bash
+# View logs
+docker-compose -f docker/docker-compose.simple.yml logs web --follow
+
+# Stop everything
+docker-compose -f docker/docker-compose.simple.yml down
+
+# Clean up (nuclear option)
+docker-compose -f docker/docker-compose.simple.yml down -v
 ```
 
-**That's it!** Hot reload enabled. See [docker/README.md](./docker/README.md) for details.
+See [docker/README.md](./docker/README.md) for detailed Docker documentation.
+
+---
 
 ## �📁 Repository Contents
 
@@ -521,16 +625,32 @@ whatebuy/
 
 ## 📚 Documentation
 
+### Getting Started
+
+- **[Quick Start](#-quick-start---try-authentication)** - Try authentication in 30 seconds
+- **[Current Status](./docs/CURRENT_STATUS_REALITY_CHECK.md)** - ⚠️ What actually works vs what doesn't
+- **[Authentication Guide](./docs/AUTHENTICATION_COMPLETE.md)** - How auth is implemented
+- **[BankID Integration](./docs/BANKID_INTEGRATION.md)** - Nordic authentication (Sweden, Norway, Denmark)
+- **[Docker Setup](./docker/README.md)** - Full development environment guide
+
+### Business & Product
+
 - **[Market Analysis](./docs/1_MARKET_ANALYSIS.md)** - Competitive landscape, market opportunity
 - **[Product Specification](./docs/2_PRODUCT_SPECIFICATION.md)** - Features, UX, user personas
 - **[Implementation Plan](./docs/IMPLEMENTATION_PLAN.md)** - Technical roadmap, timeline, budget
+
+### Technical
+
 - **[Technical Architecture](./docs/TECHNICAL_ARCHITECTURE.md)** - System design, data flow
-- **[Implementation Roadmap](./IMPLEMENTATION_ROADMAP.md)** - ⭐ Complete Phase 4-8 guide
+- **[Implementation Roadmap](./docs/IMPLEMENTATION_ROADMAP.md)** - Phase 4-8 guide
 - **[Database Schema](./supabase/SCHEMA.md)** - PostgreSQL tables, RLS policies
 - **[Business Logic](./shared/BUSINESS_LOGIC.md)** - Parsers, categorization, analytics
-- **[Progress Report](./PROGRESS.md)** - Detailed status of Phases 1-3
-- **[Achievements](./ACHIEVEMENTS.md)** - Project milestones and metrics
 - **[Copilot Instructions](./.github/copilot-instructions.md)** - AI coding assistant guidelines
+
+### Progress Tracking
+
+- **[Progress Report](./docs/PROGRESS.md)** - Detailed status of all phases
+- **[Achievements](./docs/ACHIEVEMENTS.md)** - Project milestones and metrics
 
 ## 🛠 Technology Stack
 
@@ -668,7 +788,7 @@ See [.github/copilot-instructions.md](./.github/copilot-instructions.md) for det
 
 ## 🚦 Development Status
 
-### Phase 1: Foundation ✅ COMPLETE
+### ✅ Phase 1: Foundation (COMPLETE)
 
 - [x] Monorepo setup (Turborepo)
 - [x] TypeScript strict mode configuration
@@ -677,7 +797,7 @@ See [.github/copilot-instructions.md](./.github/copilot-instructions.md) for det
 - [x] Unit tests (11 tests, 80%+ coverage)
 - [x] Git hooks and conventional commits
 
-### Phase 2: Database & Backend ✅ COMPLETE
+### ✅ Phase 2: Database & Backend (COMPLETE)
 
 - [x] Supabase database schema (11 tables)
 - [x] Complete relationships and indexes
@@ -686,7 +806,7 @@ See [.github/copilot-instructions.md](./.github/copilot-instructions.md) for det
 - [x] Seed data & migrations (3 migration files)
 - [x] Comprehensive documentation (SCHEMA.md)
 
-### Phase 3: Shared Business Logic ✅ COMPLETE
+### ✅ Phase 3: Shared Business Logic (COMPLETE)
 
 - [x] Receipt parser (Veryfi + generic OCR, multi-format dates)
 - [x] Category classifier (200+ keywords EN/SV, GPT-4 integration)
@@ -694,42 +814,79 @@ See [.github/copilot-instructions.md](./.github/copilot-instructions.md) for det
 - [x] 75 tests passing (24 new tests, 80%+ coverage)
 - [x] Complete API documentation (BUSINESS_LOGIC.md)
 
-### Phase 4: Mobile App 📋 IN PLANNING
+### 🟡 Phase 4: Mobile App (30% - UI SCAFFOLDING ONLY)
 
-- [ ] React Native setup with Expo
-- [ ] Navigation structure (React Navigation 6)
-- [ ] Authentication screens
-- [ ] Core features (receipts, budgets, analytics)
+- [x] React Native setup with Expo
+- [x] Navigation structure (React Navigation 6)
+- [x] Authentication screens (UI only)
+- [ ] Connect auth hooks to Supabase
+- [ ] Receipt upload functionality
+- [ ] Budget management screens
+- [ ] Analytics dashboard
 
-**See [IMPLEMENTATION_ROADMAP.md](./IMPLEMENTATION_ROADMAP.md) for complete Phase 4-8 details**
+**Status:** UI exists but not connected to backend
 
-### Phase 5: Web App 📋 PLANNED
+### � Phase 5: Web App (70% - AUTHENTICATION VERIFIED WORKING)
 
-- [ ] Next.js 14 setup (App Router)
-- [ ] Tailwind CSS + Shadcn/ui
-- [ ] Responsive dashboard
-- [ ] Server-side auth
+- [x] Next.js 14 setup (App Router)
+- [x] Tailwind CSS styling
+- [x] Authentication pages (signup, login)
+- [x] Session management with middleware
+- [x] Protected routes
+- [x] User dashboard
+- [x] BankID UI (Sweden, Norway, Denmark)
+- [x] Docker development environment
+- [x] **Auth backend working** (verified via API + web UI)
+- [x] **Web UI signup/login tested** (correct URLs: /signup and /login)
+- [ ] Receipt management UI
+- [ ] Budget dashboard
+- [ ] Analytics charts
+- [ ] Household management
 
-### Phase 6: Core Features 📋 PLANNED
+**Status:** Authentication fully functional (tested end-to-end), core features pending
+
+### 📋 Phase 6: Core Features (PLANNED)
 
 - [ ] Store OAuth integrations (ICA, Coop, Willys)
 - [ ] OCR receipt scanning (Veryfi)
-- [ ] AI categorization (GPT-4)
+- [ ] BankID backend integration (Criipto or direct)
+- [ ] AI categorization implementation
 - [ ] Premium subscriptions (Stripe)
 
-### Phase 7: Testing & Quality 📋 PLANNED
+### 📋 Phase 7: Testing & Quality (PLANNED)
 
 - [ ] E2E tests (Playwright/Detox)
 - [ ] Performance testing
 - [ ] Security audit
 - [ ] Accessibility compliance (WCAG AA)
 
-### Phase 8: CI/CD & Deployment 📋 PLANNED
+### 📋 Phase 8: CI/CD & Deployment (PLANNED)
 
 - [ ] GitHub Actions pipelines
 - [ ] Automated testing
 - [ ] Deployment workflows (Vercel + EAS)
 - [ ] Monitoring & alerts (Sentry + PostHog)
+
+---
+
+## 📊 Overall Progress
+
+| Phase                   | Status         | Completion | Notes                                   |
+| ----------------------- | -------------- | ---------- | --------------------------------------- |
+| Phase 1: Foundation     | ✅ Complete    | 100%       | Monorepo, TypeScript, testing setup     |
+| Phase 2: Database       | ✅ Complete    | 100%       | Supabase schema, RLS, migrations        |
+| Phase 3: Business Logic | ✅ Complete    | 100%       | Parsers, analytics, 75 tests passing    |
+| Phase 4: Mobile App     | 🟡 In Progress | 30%        | UI scaffolding only, no backend         |
+| Phase 5: Web App        | � Working      | 70%        | Auth verified working, features pending |
+| Phase 6: Core Features  | 📋 Planned     | 0%         | Not started                             |
+| Phase 7: Testing        | 📋 Planned     | 0%         | Not started                             |
+| Phase 8: Deployment     | 📋 Planned     | 0%         | Not started                             |
+
+**Overall Progress: ~40%** (up from 30% before auth fixes)
+
+**Critical Milestone Achieved:** ✅ Authentication is WORKING! Users can sign up, log in, and access protected routes. This unblocks all feature development.
+
+**Next Priority:** Build receipt upload and budget management features.
 
 ## 🤝 Contributing
 
@@ -753,8 +910,24 @@ MIT License - See [LICENSE](./LICENSE) for details
 ---
 
 **Last Updated:** October 8, 2025  
-**Version:** 0.3.0 (Phase 3 Complete)  
-**Status:** Active Development 🚀  
-**Next Phase:** Mobile App Foundation (React Native)
+**Version:** 0.5.0 (Authentication Complete)  
+**Status:** 🚧 Active Development - ~30% Complete  
+**Working Features:** Authentication, Database, Business Logic  
+**Next Milestone:** Receipt Upload & Budget Management
 
-Made with ❤️ by the Receiptor Team
+Made with ❤️ for Scandinavian households
+
+---
+
+## ⚠️ Important Notes
+
+1. **This is a work in progress** - Many features are planned but not yet implemented
+2. **Authentication works** - You can create accounts and log in
+3. **BankID is UI-only** - Backend integration requires Criipto account or direct certificates
+4. **Mobile app is scaffolding** - UI exists but not connected to backend
+5. **No receipt upload yet** - Coming in next phase
+6. **Test in Docker** - Use docker-compose for local development
+
+See [docs/CURRENT_STATUS_REALITY_CHECK.md](./docs/CURRENT_STATUS_REALITY_CHECK.md) for complete status.
+
+---
