@@ -6,69 +6,37 @@ This repository contains comprehensive competitive research and analysis of groc
 
 ## 📁 Repository Contents
 
-### **[COMPETITOR_COMPARISON.md](./COMPETITOR_COMPARISON.md)** - Dual Competitor Analysis ⭐ NEW
-Complete side-by-side comparison of two successful Scandinavian grocery budget tracking apps:
-- Feature-by-feature comparison matrix (30+ features)
-- Identified gaps and opportunities
-- Market positioning strategy
-- User pain points and feedback analysis
-- Our 10 key differentiators
+### Core Documentation (in `/docs` folder)
 
-**Start here for competitive intelligence.**
+**[1_MARKET_ANALYSIS.md](./docs/1_MARKET_ANALYSIS.md)** - Market Research & Competitive Landscape
+- Complete analysis of successful grocery budget tracking apps
+- Market validation and opportunity sizing
+- User insights and pain points
+- Revenue model and go-to-market strategy
+- **Start here for business context**
 
-### **[IMPLEMENTATION_PLAN.md](./IMPLEMENTATION_PLAN.md)** - Technical Implementation Guide ⭐ NEW
-Detailed technical roadmap for building the product:
+**[2_PRODUCT_SPECIFICATION.md](./docs/2_PRODUCT_SPECIFICATION.md)** - Product Features & User Experience
+- Detailed feature specifications
+- User personas and journey maps
+- UI/UX requirements and wireframes
+- Core features and MVP scope
+- **Start here for product definition**
+
+**[IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md)** - Technical Roadmap
 - Complete technical architecture
 - Database schema and API design
 - 4-phase development plan with timelines
 - Technology stack decisions
 - Security architecture
 - Budget breakdown ($42K-62K Year 1)
-- Success metrics and KPIs
+- **Start here for development planning**
 
-**Start here for development planning.**
-
-### **[INVESTIGATION_FINDINGS.md](./INVESTIGATION_FINDINGS.md)** - Detailed Research
-The most comprehensive document with 24 detailed sections covering:
-- Complete feature analysis (anonymized)
-- Technical architecture (inferred)
-- Data privacy and compliance details
-- User feedback and reviews analysis
-- Market opportunity assessment
-
-**Reference for deep dive.**
-
-### **[QUICK_SUMMARY.md](./QUICK_SUMMARY.md)** - Executive Summary
-A concise one-page overview perfect for:
-- Quick reference
-- Sharing with stakeholders
-- Understanding the basics
-
-**Quick overview.**
-
-### **[TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)** - Technical Deep Dive
-Detailed technical analysis including:
+**[TECHNICAL_ARCHITECTURE.md](./docs/TECHNICAL_ARCHITECTURE.md)** - Technical Deep Dive
 - System architecture diagrams
 - Data flow documentation
-- Database schema (recommended)
-- API design patterns
-- Security architecture
 - Technology stack recommendations
 - Scalability considerations
-
-**Technical reference.**
-
-### **[COMPETITIVE_ANALYSIS.md](./COMPETITIVE_ANALYSIS.md)** - Strategic Roadmap (Legacy)
-Complete competitive analysis with:
-- Feature comparison
-- Gap analysis and opportunities
-- Differentiation strategy
-- Business model comparison
-- Go-to-market plan
-- Development roadmap
-- Budget and resource planning
-
-**Note:** Much of this is superseded by COMPETITOR_COMPARISON.md and IMPLEMENTATION_PLAN.md
+- **Reference for technical decisions**
 
 ---
 
@@ -391,11 +359,11 @@ This is currently a private research project. If you'd like to contribute or col
 
 **Questions?** Review the documentation or create issues for discussion.
 
-**Ready to build?** Review in this order:
-1. **[1_MARKET_ANALYSIS.md](./docs/1_MARKET_ANALYSIS.md)** - Understand the competitive landscape
-2. **[2_PRODUCT_SPECIFICATION.md](./docs/2_PRODUCT_SPECIFICATION.md)** - What we're building for users
-3. **[IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md)** - Technical roadmap and architecture
-4. **[TECHNICAL_ARCHITECTURE.md](./docs/TECHNICAL_ARCHITECTURE.md)** - Additional technical details
+**Ready to build?** Start with the market analysis, then review the product specification and implementation plan.
+
+---
+
+## 📄 License
 
 ---
 
