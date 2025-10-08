@@ -32,9 +32,9 @@
     },
     "extra": {
       "eas": {
-        "projectId": "receiptor-dev"
+        "projectId": "f117e178-844d-4410-aba6-872ae0002d55"
       }
     },
-    "owner": "receiptor-dev"
+    "owner": "receiptor"
   }
 }

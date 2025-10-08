@@ -1,8 +1,11 @@
-module.exports = {
-  presets: ['module:metro-react-native-babel-preset'],
-  env: {
-    test: {
-      presets: ['module:metro-react-native-babel-preset'],
-    },
-  },
+module.exports = function (api) {
+  api.cache(true);
+  return {
+    presets: ['babel-preset-expo'],
+    plugins: [
+      '@babel/plugin-transform-private-methods',
+      '@babel/plugin-transform-class-properties',
+      '@babel/plugin-transform-private-property-in-object',
+    ],
+  };
 };
