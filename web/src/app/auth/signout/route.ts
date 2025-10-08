@@ -5,13 +5,24 @@
 
 import { createClient } from '@/lib/supabase/server';
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
-export async function POST() {
+export async function POST(request: Request) {
   const supabase = createClient();
 
-  await supabase.auth.signOut();
+  // Sign out from Supabase (clears session and cookies)
+  const { error } = await supabase.auth.signOut();
 
-  return NextResponse.redirect(
-    new URL('/', process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000')
-  );
+  if (error) {
+    console.error('Signout error:', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  // Revalidate the homepage to clear any cached user data
+  revalidatePath('/', 'layout');
+
+  // Redirect to homepage
+  return NextResponse.redirect(new URL('/', request.url), {
+    status: 303,
+  });
 }
