@@ -27,6 +27,7 @@ This repository contains comprehensive competitive research and analysis of groc
 ### Core Documentation (in `/docs` folder)
 
 **[1_MARKET_ANALYSIS.md](./docs/1_MARKET_ANALYSIS.md)** - Market Research & Competitive Landscape
+
 - Complete analysis of successful grocery budget tracking apps
 - Market validation and opportunity sizing
 - User insights and pain points
@@ -34,6 +35,7 @@ This repository contains comprehensive competitive research and analysis of groc
 - **Start here for business context**
 
 **[2_PRODUCT_SPECIFICATION.md](./docs/2_PRODUCT_SPECIFICATION.md)** - Product Features & User Experience
+
 - Detailed feature specifications
 - User personas and journey maps
 - UI/UX requirements and wireframes
@@ -41,6 +43,7 @@ This repository contains comprehensive competitive research and analysis of groc
 - **Start here for product definition**
 
 **[IMPLEMENTATION_PLAN.md](./docs/IMPLEMENTATION_PLAN.md)** - Technical Roadmap
+
 - Complete technical architecture
 - Database schema and API design
 - 4-phase development plan with timelines
@@ -50,6 +53,7 @@ This repository contains comprehensive competitive research and analysis of groc
 - **Start here for development planning**
 
 **[TECHNICAL_ARCHITECTURE.md](./docs/TECHNICAL_ARCHITECTURE.md)** - Technical Deep Dive
+
 - System architecture diagrams
 - Data flow documentation
 - Technology stack recommendations
@@ -61,15 +65,18 @@ This repository contains comprehensive competitive research and analysis of groc
 ## 🎯 Key Findings Summary
 
 ### Market Overview
+
 We've analyzed **two successful grocery budget tracking apps** operating primarily in Scandinavia (Sweden, Denmark, Norway):
 
 **Competitor A:**
+
 - 50,000+ downloads
 - 3 countries (Denmark, Sweden, Norway)
 - 4 store integrations
 - Free model (revenue from data sales)
 
 **Competitor B:**
+
 - Active in Sweden
 - 6 store integrations (Swedish market)
 - Household/partner sharing feature
@@ -118,7 +125,9 @@ We've analyzed **two successful grocery budget tracking apps** operating primari
    - **Our Edge:** Public API for integrations
 
 ### Validation
+
 Combined user base proves:
+
 - ✅ People want automated grocery tracking
 - ✅ Free model works for user acquisition
 - ✅ Market is underserved (<1% penetration)
@@ -129,17 +138,21 @@ Combined user base proves:
 ## 📊 Market Opportunity
 
 ### Target Market
+
 - **Primary:** Scandinavia (compete directly with both)
 - **Secondary:** UK, Germany, France, Spain
 - **Tertiary:** US, Canada, Asia-Pacific
 
 ### Addressable Market
+
 - **Scandinavia:** ~2-3M potential users (current penetration <1%)
 - **Europe:** ~20M potential users
 - **Global:** ~100M+ potential users
 
 ### Validation
+
 Market is proven but still in early stages:
+
 - ✅ 50,000+ combined users validates demand
 - ✅ Both competitors still growing
 - ✅ No dominant leader yet
@@ -150,7 +163,9 @@ Market is proven but still in early stages:
 ## 🚀 Our Strategy
 
 ### Phase 1: MVP (Months 1-4)
+
 **Build better version with critical features:**
+
 - Household sharing (key differentiator)
 - OAuth-based integrations (safer)
 - 5-10 stores per market
@@ -160,7 +175,9 @@ Market is proven but still in early stages:
 **Goal:** 5,000 downloads, 1,000 active users
 
 ### Phase 2: Growth (Months 5-12)
+
 **Expand and differentiate:**
+
 - Manual receipt scanning (OCR)
 - AI insights and recommendations
 - Price comparison
@@ -170,7 +187,9 @@ Market is proven but still in early stages:
 **Goal:** 100,000 downloads, 30,000 active users, $300K ARR
 
 ### Phase 3: Scale (Year 2+)
+
 **Become market leader:**
+
 - Enter US market
 - Meal planning integration
 - B2B white-label offering
@@ -184,12 +203,14 @@ Market is proven but still in early stages:
 ## 💰 Business Model
 
 ### Free Tier
+
 - All core features
 - Up to 3 household members
 - Basic analytics
 - 6 months history
 
 ### Premium Tier ($4.99/month or $49.99/year)
+
 - Unlimited household members
 - Advanced AI insights
 - Unlimited history
@@ -199,12 +220,14 @@ Market is proven but still in early stages:
 - Priority support
 
 ### Additional Revenue
+
 - Anonymized data sales (opt-in, transparent)
 - White-label licensing to grocery chains
 - Affiliate commissions (deals, cashback)
 - API access for developers
 
 **Revenue Mix (Year 2 target):**
+
 - 40% Premium subscriptions
 - 30% Affiliate/cashback
 - 20% Data insights
@@ -215,20 +238,23 @@ Market is proven but still in early stages:
 ## 🛠 Technology Stack (Recommended)
 
 ### Mobile
+
 - **React Native** (cross-platform: iOS + Android + Web)
 - TypeScript for type safety
 - React Query for data fetching
 - Zustand or Redux for state management
 
 ### Backend
+
 - **Supabase** (PostgreSQL, Auth, Storage, Functions)
   - More cost-effective than Firebase at scale
   - Open-source, self-hostable if needed
   - PostgreSQL is battle-tested
-  
+
 **Alternative:** Firebase (faster setup, higher costs)
 
 ### Additional Services
+
 - **OCR:** Veryfi or Taggun for receipt scanning
 - **Analytics:** PostHog (self-hosted) or Mixpanel
 - **Monitoring:** Sentry for error tracking
@@ -236,6 +262,7 @@ Market is proven but still in early stages:
 - **Email:** SendGrid or Resend
 
 ### Infrastructure
+
 - **Hosting:** Vercel (web) + Supabase (backend)
 - **CI/CD:** GitHub Actions
 - **Testing:** Jest + Playwright
@@ -246,6 +273,7 @@ Market is proven but still in early stages:
 ## 📈 Success Metrics
 
 ### MVP (Month 4)
+
 - 5,000 downloads
 - 1,000 MAU
 - 500 households using multi-user
@@ -253,6 +281,7 @@ Market is proven but still in early stages:
 - <10% crash rate
 
 ### Product-Market Fit (Month 12)
+
 - 100,000 downloads
 - 30,000 MAU
 - 10,000 paying users
@@ -261,6 +290,7 @@ Market is proven but still in early stages:
 - <5% monthly churn
 
 ### Market Leadership (Year 2)
+
 - 1M+ downloads
 - 200K MAU
 - $2.5M ARR
@@ -272,21 +302,23 @@ Market is proven but still in early stages:
 ## 💡 Key Differentiators
 
 ### vs Both Competitors
-| Feature | Competitor A | Competitor B | Us |
-|---------|--------------|--------------|-----|
-| Household sharing | ❌ None | ⚠️ 1-to-1 only | ✅ **Unlimited members** |
-| Store integrations | 4 | 6 | 20+ |
-| Countries | 3 | 1 | 10+ |
-| Languages | 3 (Nordic) | 1 (Swedish) | 10+ |
-| Integration method | Credentials | Credentials | OAuth 2.0 |
-| Manual receipts | ❌ | ❌ | ✅ OCR |
-| AI insights | ❌ | ❌ | ✅ |
-| Carbon tracking | ❌ | ❌ | ✅ |
-| Premium tier | ❌ | ❌ | ✅ |
-| API | ❌ | ❌ | ✅ |
-| Web app | ❌ | ❌ | ✅ |
+
+| Feature            | Competitor A | Competitor B   | Us                       |
+| ------------------ | ------------ | -------------- | ------------------------ |
+| Household sharing  | ❌ None      | ⚠️ 1-to-1 only | ✅ **Unlimited members** |
+| Store integrations | 4            | 6              | 20+                      |
+| Countries          | 3            | 1              | 10+                      |
+| Languages          | 3 (Nordic)   | 1 (Swedish)    | 10+                      |
+| Integration method | Credentials  | Credentials    | OAuth 2.0                |
+| Manual receipts    | ❌           | ❌             | ✅ OCR                   |
+| AI insights        | ❌           | ❌             | ✅                       |
+| Carbon tracking    | ❌           | ❌             | ✅                       |
+| Premium tier       | ❌           | ❌             | ✅                       |
+| API                | ❌           | ❌             | ✅                       |
+| Web app            | ❌           | ❌             | ✅                       |
 
 ### vs General Budget Apps (Mint, YNAB)
+
 - **Grocery-specific** - Deep category insights
 - **Automatic** - No manual entry needed
 - **Multi-store** - All receipts in one place
@@ -298,6 +330,7 @@ Market is proven but still in early stages:
 ## 🎯 Next Steps
 
 ### Immediate (This Week)
+
 - [x] Complete competitive analysis ✅
 - [x] Create implementation plan ✅
 - [ ] Download and test competitor apps firsthand
@@ -307,6 +340,7 @@ Market is proven but still in early stages:
 - [ ] Start UX/UI wireframes
 
 ### Short-term (Next 2 Weeks)
+
 - [ ] Finalize tech stack decision
 - [ ] Set up development environment
 - [ ] Design database schema
@@ -316,6 +350,7 @@ Market is proven but still in early stages:
 - [ ] Begin MVP development
 
 ### Medium-term (Next Month)
+
 - [ ] Backend MVP complete
 - [ ] Mobile app scaffolding
 - [ ] First 2-3 store integrations working
@@ -329,6 +364,7 @@ Market is proven but still in early stages:
 ## 📚 Research Methodology
 
 ### Data Sources
+
 1. **Website Analysis:** Competitor websites (Scandinavia-based apps)
 2. **Privacy Policies:** Detailed GDPR documentation
 3. **Terms of Service:** User agreement analysis
@@ -336,12 +372,14 @@ Market is proven but still in early stages:
 5. **User Reviews:** Google Play, Apple App Store, testimonials
 
 ### Anonymization
+
 - Company names removed (referred to as "Competitor A" and "Competitor B")
 - Specific brand details generalized
 - Focus on features, gaps, and opportunities
 - Avoids copyright/trademark issues
 
 ### What We Have
+
 - ✅ Complete feature analysis of both competitors
 - ✅ Inferred technical architecture
 - ✅ User feedback and pain points
@@ -349,6 +387,7 @@ Market is proven but still in early stages:
 - ✅ Detailed implementation plan
 
 ### What We Don't Have (Yet)
+
 - [ ] Hands-on app testing (download needed)
 - [ ] Direct user interviews
 - [ ] Actual API documentation (proprietary)
@@ -356,6 +395,7 @@ Market is proven but still in early stages:
 - [ ] Internal metrics (private)
 
 ### Limitations
+
 - Architecture is **inferred** from public information
 - Some technical details are **educated guesses**
 - Revenue numbers are **estimated**
@@ -366,6 +406,7 @@ Market is proven but still in early stages:
 ## 🤝 Contributing
 
 This is currently a private research project. If you'd like to contribute or collaborate:
+
 1. Review the documentation
 2. Test WhatIBuy app
 3. Identify additional gaps or opportunities
@@ -394,6 +435,7 @@ This research documentation is for planning purposes. Any code we develop will b
 ## 🎉 Conclusion
 
 **The opportunity is clear:**
+
 - ✅ Market validated by two successful competitors (50K+ users)
 - ✅ Clear gaps to address (household sharing is #1)
 - ✅ Technology advantage (OAuth, modern stack, AI)
@@ -402,6 +444,7 @@ This research documentation is for planning purposes. Any code we develop will b
 - ✅ Early stage market (<1% penetration)
 
 **Competitive advantages are significant:**
+
 1. ⭐ Household sharing (families are underserved)
 2. 🔐 OAuth security (no credential storage)
 3. 🌍 Global reach (10+ countries vs 1-3)
@@ -472,6 +515,7 @@ whatebuy/
 ## 🛠 Technology Stack
 
 ### Frontend
+
 - **Mobile:** React Native + TypeScript + Expo
 - **Web:** Next.js 14 (App Router) + Tailwind CSS
 - **State:** Zustand
@@ -479,6 +523,7 @@ whatebuy/
 - **UI:** React Native Paper + Shadcn/ui
 
 ### Backend
+
 - **Database:** Supabase (PostgreSQL)
 - **Auth:** Supabase Auth (Email, Google, Apple)
 - **Realtime:** Supabase Realtime subscriptions
@@ -486,6 +531,7 @@ whatebuy/
 - **Functions:** Supabase Edge Functions (Deno)
 
 ### Infrastructure
+
 - **Monorepo:** Turborepo
 - **Testing:** Jest + React Testing Library + Playwright
 - **CI/CD:** GitHub Actions
@@ -495,6 +541,7 @@ whatebuy/
 ## 📦 Packages
 
 ### `@receiptor/shared`
+
 Core business logic, types, and utilities shared across all platforms.
 
 ```typescript
@@ -505,6 +552,7 @@ const progress = calculateBudgetProgress(receipts, 5000);
 ```
 
 **Status:** ✅ Complete (v0.1.0)
+
 - TypeScript types for all entities
 - Zod validation schemas
 - Budget calculation utilities
@@ -512,12 +560,15 @@ const progress = calculateBudgetProgress(receipts, 5000);
 - 80%+ test coverage
 
 ### `mobile` (React Native)
+
 **Status:** 🚧 Coming in Phase 4
 
 ### `web` (Next.js)
+
 **Status:** 🚧 Coming in Phase 5
 
 ### `supabase` (Database)
+
 **Status:** 🚧 Coming in Phase 2
 
 ## 🧪 Testing
@@ -556,6 +607,7 @@ See [.github/copilot-instructions.md](./.github/copilot-instructions.md) for det
 ## 🚦 Development Status
 
 ### Phase 1: Foundation ✅ COMPLETE
+
 - [x] Monorepo setup (Turborepo)
 - [x] TypeScript configuration
 - [x] ESLint + Prettier
@@ -563,44 +615,52 @@ See [.github/copilot-instructions.md](./.github/copilot-instructions.md) for det
 - [x] Unit tests (80%+ coverage)
 - [x] Git hooks
 
-### Phase 2: Database & Backend 🚧 IN PROGRESS
-- [ ] Supabase project setup
-- [ ] Database schema & migrations
-- [ ] Row Level Security policies
-- [ ] Edge Functions
-- [ ] Authentication flows
+### Phase 2: Database & Backend ✅ COMPLETE
+
+- [x] Supabase project schema
+- [x] 11 tables with relationships
+- [x] Row Level Security (30+ policies)
+- [x] Edge Functions (categorize-receipt)
+- [x] Seed data & migrations
+- [x] Comprehensive documentation
 
 ### Phase 3: Shared Business Logic 📋 PLANNED
+
 - [ ] Receipt parsing logic
 - [ ] Category classification
 - [ ] Analytics engine
 - [ ] Budget tracking
 
 ### Phase 4: Mobile App 📋 PLANNED
+
 - [ ] React Native setup
 - [ ] Navigation structure
 - [ ] Authentication screens
 - [ ] Core features (receipts, budgets, analytics)
 
 ### Phase 5: Web App 📋 PLANNED
+
 - [ ] Next.js setup
 - [ ] Responsive design
 - [ ] Dashboard
 - [ ] Admin features
 
 ### Phase 6: Core Features 📋 PLANNED
+
 - [ ] Store OAuth integrations
 - [ ] OCR receipt scanning
 - [ ] AI categorization
 - [ ] Premium subscriptions
 
 ### Phase 7: Testing & Quality 📋 PLANNED
+
 - [ ] E2E tests (Playwright/Detox)
 - [ ] Performance testing
 - [ ] Security audit
 - [ ] Accessibility compliance
 
 ### Phase 8: CI/CD & Deployment 📋 PLANNED
+
 - [ ] GitHub Actions pipelines
 - [ ] Automated testing
 - [ ] Deployment workflows
