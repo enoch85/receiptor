@@ -54,8 +54,6 @@ A modern household grocery budget tracker with automatic receipt collection, AI-
 
 ## 🚀 Quick Start
 
-## 🚀 Quick Start
-
 ```bash
 # Start development environment
 docker-compose -f docker/docker-compose.simple.yml up -d
