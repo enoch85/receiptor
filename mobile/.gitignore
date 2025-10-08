@@ -34,6 +34,12 @@ yarn-error.*
 .env*.local
 .env
 
+# APK and build outputs
+builds/*.apk
+builds/*.aab
+builds/*.ipa
+!builds/.gitkeep
+
 # typescript
 *.tsbuildinfo
 
